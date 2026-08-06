@@ -1,7 +1,6 @@
 (() => {
   const WHATSAPP = "5548992156250";
-  const KEY = "vi-quiz-v6";
-  const ADVANCE_MS = 220;
+  const KEY = "vi-quiz-v7";
 
   const portfolio = [
     {
@@ -31,6 +30,7 @@
     {
       id: "perfil",
       title: "Qual é o seu perfil?",
+      multi: false,
       options: [
         { value: "Corretor autônomo", icon: "user" },
         { value: "Imobiliária", icon: "building" },
@@ -42,39 +42,46 @@
     {
       id: "divulgar",
       title: "O que você quer divulgar?",
+      multi: true,
+      hint: "Pode marcar mais de uma opção",
       options: [
         { value: "Imóveis para venda", icon: "tag" },
         { value: "Imóveis para locação", icon: "key" },
         { value: "Lançamentos imobiliários", icon: "rocket" },
         { value: "Minha imobiliária ou marca pessoal", icon: "spark" },
-        { value: "Um pouco de tudo", icon: "layers" },
+        { value: "Um pouco de tudo", icon: "layers", exclusive: true },
       ],
     },
     {
       id: "material",
       title: "Que material você já tem?",
+      multi: true,
+      hint: "Pode marcar mais de uma opção",
       options: [
-        { value: "Apenas fotos", icon: "image" },
-        { value: "Fotos e vídeos do celular", icon: "phone" },
+        { value: "Fotos", icon: "image" },
+        { value: "Vídeos gravados pelo celular", icon: "phone" },
         { value: "Filmagens profissionais", icon: "film" },
-        { value: "Ainda não tenho material", icon: "empty" },
+        { value: "Ainda não tenho material", icon: "empty", exclusive: true },
         { value: "Preciso de orientação para gravar", icon: "help" },
       ],
     },
     {
       id: "formato",
       title: "Qual formato você procura?",
+      multi: true,
+      hint: "Pode marcar mais de uma opção",
       options: [
         { value: "Apresentação completa do imóvel", icon: "play" },
         { value: "Reels rápido e chamativo", icon: "bolt" },
         { value: "Vídeo com narração", icon: "mic" },
         { value: "Anúncio para gerar contatos", icon: "megaphone" },
-        { value: "Não sei, quero uma recomendação", icon: "compass" },
+        { value: "Não sei, quero uma recomendação", icon: "compass", exclusive: true },
       ],
     },
     {
       id: "quantidade",
       title: "Quantos vídeos você precisa?",
+      multi: false,
       options: [
         { value: "Quero testar com 1 vídeo", icon: "one" },
         { value: "De 2 a 4 vídeos", icon: "few" },
@@ -85,6 +92,8 @@
     {
       id: "objetivo",
       title: "Qual é o principal objetivo?",
+      multi: true,
+      hint: "Pode marcar mais de uma opção",
       options: [
         { value: "Apresentar melhor os imóveis", icon: "eye" },
         { value: "Postar com mais frequência", icon: "calendar" },
@@ -96,6 +105,7 @@
     {
       id: "prazo",
       title: "Quando pretende começar?",
+      multi: false,
       options: [
         { value: "O quanto antes", icon: "flash" },
         { value: "Nesta semana", icon: "week" },
@@ -153,9 +163,9 @@
   const state = {
     step: 0,
     answers: {},
+    draft: [], // current question selection(s)
     lead: { nome: "", cidade: "", instagram: "", telefone: "" },
     phase: "start",
-    lock: false,
     timer: null,
   };
 
@@ -252,67 +262,140 @@
     }
   }
 
-  function pick(id, value) {
-    if (state.lock || state.phase !== "questions") return;
-    state.lock = true;
-    state.answers[id] = value;
-    save();
-    paintSelected(value);
-
-    clearTimer();
-    state.timer = setTimeout(() => {
-      if (state.step < questions.length - 1) state.step += 1;
-      else state.phase = "lead";
-      state.lock = false;
-      state.timer = null;
-      save();
-      render({ scroll: true });
-    }, ADVANCE_MS);
+  function asList(val) {
+    if (Array.isArray(val)) return val.filter(Boolean);
+    if (val == null || val === "") return [];
+    return [String(val)];
   }
 
-  function paintSelected(value) {
+  function displayAnswer(id) {
+    const list = asList(state.answers[id]);
+    return list.length ? list.join(", ") : "—";
+  }
+
+  function isAnswered(id) {
+    return asList(state.answers[id]).length > 0;
+  }
+
+  function currentQuestion() {
+    return questions[state.step];
+  }
+
+  function loadDraftFromAnswer() {
+    const q = currentQuestion();
+    if (!q) {
+      state.draft = [];
+      return;
+    }
+    state.draft = asList(state.answers[q.id]);
+  }
+
+  function toggleOption(value) {
+    const q = currentQuestion();
+    if (!q) return;
+    const opt = q.options.find((o) => o.value === value);
+    if (!opt) return;
+
+    if (!q.multi) {
+      state.draft = [value];
+      paintDraft();
+      syncConfirmBtn();
+      return;
+    }
+
+    // multi
+    const exclusiveValues = q.options.filter((o) => o.exclusive).map((o) => o.value);
+    const isExclusive = !!opt.exclusive;
+    let next = [...state.draft];
+
+    if (isExclusive) {
+      next = next.includes(value) ? [] : [value];
+    } else {
+      next = next.filter((v) => !exclusiveValues.includes(v));
+      if (next.includes(value)) next = next.filter((v) => v !== value);
+      else next.push(value);
+    }
+
+    state.draft = next;
+    paintDraft();
+    syncConfirmBtn();
+  }
+
+  function paintDraft() {
     el.panel.querySelectorAll(".opt").forEach((btn) => {
-      const on = btn.getAttribute("data-v") === value;
+      const v = btn.getAttribute("data-v");
+      const on = state.draft.includes(v);
       btn.classList.toggle("is-on", on);
       btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
 
-  function goBack() {
-    if (state.lock && state.phase === "questions") {
-      clearTimer();
-      state.lock = false;
+  function syncConfirmBtn() {
+    const btn = document.getElementById("confirmBtn");
+    if (!btn) return;
+    btn.disabled = state.draft.length === 0;
+  }
+
+  function confirmAnswer() {
+    const q = currentQuestion();
+    if (!q || state.draft.length === 0) return;
+
+    state.answers[q.id] = q.multi ? [...state.draft] : state.draft[0];
+    save();
+
+    if (state.step < questions.length - 1) {
+      state.step += 1;
+      state._draftStep = null;
+      loadDraftFromAnswer();
+    } else {
+      state.phase = "lead";
+      state.draft = [];
+      state._draftStep = null;
     }
+    save();
+    render({ scroll: true });
+  }
+
+  function goBack() {
+    clearTimer();
     if (state.phase === "processing" || state.phase === "start") return;
     if (state.phase === "result") state.phase = "lead";
     else if (state.phase === "lead") {
       state.phase = "questions";
       state.step = questions.length - 1;
-    } else if (state.phase === "questions" && state.step > 0) state.step -= 1;
-    else if (state.phase === "questions" && state.step === 0) state.phase = "start";
+      loadDraftFromAnswer();
+    } else if (state.phase === "questions" && state.step > 0) {
+      state.step -= 1;
+      loadDraftFromAnswer();
+    } else if (state.phase === "questions" && state.step === 0) {
+      state.phase = "start";
+      state.draft = [];
+    }
     save();
     render({ scroll: true });
   }
 
   function buildRecChips() {
     const chips = [];
-    const f = state.answers.formato;
-    const m = state.answers.material;
-    const q = state.answers.quantidade;
-    const o = state.answers.objetivo;
-    const p = state.answers.prazo;
+    const f = asList(state.answers.formato);
+    const m = asList(state.answers.material);
+    const q = asList(state.answers.quantidade);
+    const o = asList(state.answers.objetivo);
+    const p = asList(state.answers.prazo);
 
-    if (f && f !== "Não sei, quero uma recomendação") chips.push(f);
+    if (f.length && !f.includes("Não sei, quero uma recomendação")) chips.push(...f.slice(0, 2));
     else chips.push("Recomendação personalizada");
 
-    if (m === "Apenas fotos" || m === "Fotos e vídeos do celular") chips.push("Produção com seu material");
-    if (m === "Ainda não tenho material" || m === "Preciso de orientação para gravar") {
+    if (m.some((x) => x === "Fotos" || x === "Vídeos gravados pelo celular" || x === "Filmagens profissionais")) {
+      chips.push("Produção com seu material");
+    }
+    if (m.includes("Ainda não tenho material") || m.includes("Preciso de orientação para gravar")) {
       chips.push("Orientação de gravação");
     }
-    if (q) chips.push(q);
-    if (o) chips.push(o);
-    if (p === "O quanto antes" || p === "Nesta semana") chips.push("Prioridade de entrega");
-    return chips.slice(0, 5);
+    if (q[0]) chips.push(q[0]);
+    if (o[0]) chips.push(o[0]);
+    if (p[0] === "O quanto antes" || p[0] === "Nesta semana") chips.push("Prioridade de entrega");
+    return [...new Set(chips)].slice(0, 6);
   }
 
   function startView() {
@@ -387,6 +470,7 @@
       });
       state.phase = "questions";
       if (!Number.isInteger(state.step) || state.step < 0) state.step = 0;
+      loadDraftFromAnswer();
       save();
       render({ scroll: true });
     });
@@ -440,23 +524,31 @@
   }
 
   function questionsView() {
-    const q = questions[state.step];
+    const q = currentQuestion();
     if (!q) {
       state.step = 0;
+      loadDraftFromAnswer();
       return questionsView();
     }
-    const sel = state.answers[q.id] || "";
+
+    // sincroniza draft com resposta salva ao entrar na pergunta
+    // (no toggle só repinta, sem reentrar aqui)
+    if (state._draftStep !== state.step) {
+      loadDraftFromAnswer();
+      state._draftStep = state.step;
+    }
 
     el.panel.innerHTML = `
-      <div class="panel">
+      <div class="panel q-panel">
         <div class="q-kicker">Pergunta ${state.step + 1} de ${questions.length}</div>
         <h1 class="q-title">${esc(q.title)}</h1>
-        <div class="options" role="listbox" aria-label="${esc(q.title)}">
+        ${q.multi ? `<p class="q-hint">${esc(q.hint || "Pode marcar mais de uma opção")}</p>` : ""}
+        <div class="options" role="${q.multi ? "group" : "listbox"}" aria-label="${esc(q.title)}">
           ${q.options
             .map((o) => {
-              const on = sel === o.value;
+              const on = state.draft.includes(o.value);
               return `
-            <button type="button" class="opt ${on ? "is-on" : ""}" data-v="${esc(o.value)}" aria-pressed="${on}" role="option">
+            <button type="button" class="opt ${on ? "is-on" : ""}" data-v="${esc(o.value)}" aria-pressed="${on}">
               <span class="opt-ico" aria-hidden="true">${svg(o.icon)}</span>
               <span class="opt-txt">${esc(o.value)}</span>
               <span class="opt-dot" aria-hidden="true">
@@ -466,12 +558,19 @@
             })
             .join("")}
         </div>
+        <div class="q-footer">
+          <button type="button" class="cta" id="confirmBtn" ${state.draft.length ? "" : "disabled"}>
+            Confirmar
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
     `;
 
     el.panel.querySelectorAll(".opt").forEach((btn) => {
-      btn.addEventListener("click", () => pick(q.id, btn.getAttribute("data-v")));
+      btn.addEventListener("click", () => toggleOption(btn.getAttribute("data-v")));
     });
+    document.getElementById("confirmBtn").addEventListener("click", confirmAnswer);
   }
 
   function leadView() {
@@ -619,7 +718,7 @@
     `;
   }
 
-  const ans = (id) => state.answers[id] || "—";
+  const ans = (id) => displayAnswer(id);
 
   function resultView() {
     const ig = state.lead.instagram.trim() || "Não informado";
@@ -700,11 +799,12 @@
   }
 
   function openWA() {
-    const missingIdx = questions.findIndex((q) => !state.answers[q.id]);
+    const missingIdx = questions.findIndex((q) => !isAnswered(q.id));
     if (missingIdx >= 0 || !validateSilent()) {
       if (missingIdx >= 0) {
         state.phase = "questions";
         state.step = missingIdx;
+        loadDraftFromAnswer();
       } else state.phase = "lead";
       save();
       render({ scroll: true });
@@ -734,6 +834,7 @@
     if (!Number.isInteger(state.step) || state.step < 0 || state.step >= questions.length) {
       state.step = 0;
     }
+    if (state.phase === "questions") loadDraftFromAnswer();
     render();
     el.back.addEventListener("click", goBack);
     document.addEventListener("keydown", (e) => {

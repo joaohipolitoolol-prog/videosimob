@@ -452,59 +452,65 @@
   function startView() {
     el.panel.innerHTML = `
       <div class="panel start-panel">
-        <div class="start-hero">
-          <span class="start-price">Vídeos a partir de R$ 150</span>
-          <h1 class="start-title">Vídeos profissionais para o seu imóvel</h1>
-          <p class="start-lead">
-            Corretor, imobiliária ou construtora: responda o diagnóstico e receba o orçamento
-            certo para o seu caso. Leva menos de 2 minutos.
-          </p>
-          <ul class="start-bullets">
-            <li>Entendemos perfil, material e volume</li>
-            <li>Recomendação + orçamento no WhatsApp</li>
-            <li>Pronto para Reels, anúncios e feed</li>
-          </ul>
+        <div class="start-layout">
+          <div class="start-copy">
+            <span class="start-price">Vídeos a partir de R$ 150</span>
+            <h1 class="start-title">Vídeos profissionais para o seu imóvel</h1>
+            <p class="start-lead">
+              Corretor, imobiliária ou construtora: responda o diagnóstico e receba o pré-orçamento
+              certo para o seu caso. Leva menos de 2 minutos.
+            </p>
+            <ul class="start-bullets">
+              <li>Entendemos perfil, material e volume</li>
+              <li>Pré-orçamento na hora + WhatsApp pra fechar</li>
+              <li>Pronto para Reels, anúncios e feed</li>
+            </ul>
+          </div>
 
-          <div class="portfolio">
-            <div class="portfolio-head">
-              <h2>Veja um pouco do trabalho</h2>
-              <span>Deslize →</span>
-            </div>
-            <div class="pf-scroll">
-              ${portfolio
-                .map(
-                  (v) => `
-                <article class="pf-card">
-                  <span class="pf-tag">${esc(v.tag)}</span>
-                  <video
-                    src="${esc(v.src)}"
-                    poster="${esc(v.poster)}"
-                    muted
-                    playsinline
-                    loop
-                    preload="metadata"
-                    controls
-                  ></video>
-                  <div class="pf-meta">
-                    <strong>${esc(v.title)}</strong>
-                    <span>${esc(v.label)}</span>
-                  </div>
-                </article>`
-                )
-                .join("")}
+          <div class="start-media">
+            <div class="portfolio">
+              <div class="portfolio-head">
+                <h2>Veja um pouco do trabalho</h2>
+                <span class="pf-hint-mobile">Deslize →</span>
+                <span class="pf-hint-desk">Exemplos de formato</span>
+              </div>
+              <div class="pf-scroll">
+                ${portfolio
+                  .map(
+                    (v) => `
+                  <article class="pf-card">
+                    <span class="pf-tag">${esc(v.tag)}</span>
+                    <video
+                      src="${esc(v.src)}"
+                      poster="${esc(v.poster)}"
+                      muted
+                      playsinline
+                      loop
+                      preload="metadata"
+                      controls
+                    ></video>
+                    <div class="pf-meta">
+                      <strong>${esc(v.title)}</strong>
+                      <span>${esc(v.label)}</span>
+                    </div>
+                  </article>`
+                  )
+                  .join("")}
+              </div>
             </div>
           </div>
 
-          <button type="button" class="cta" id="startBtn">
-            Começar diagnóstico
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </button>
-          <p class="fine">No final você fala com a atendente já com tudo organizado</p>
+          <div class="start-actions">
+            <button type="button" class="cta start-cta" id="startBtn">
+              Começar diagnóstico
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </button>
+            <p class="fine start-fine">No final você só finaliza o pedido no WhatsApp</p>
+          </div>
         </div>
       </div>
     `;
 
-    // autoplay first card muted if possible
     const first = el.panel.querySelector("video");
     if (first) {
       first.muted = true;
@@ -626,32 +632,43 @@
 
   function leadView() {
     el.panel.innerHTML = `
-      <div class="panel">
-        <div class="q-kicker">Último passo</div>
-        <h1 class="q-title">Onde mandamos seu orçamento?</h1>
-        <p class="q-sub">Usamos só para montar a mensagem e te atender no WhatsApp.</p>
-        <form class="form" id="leadForm" novalidate>
-          <div class="field">
-            <label for="nome">Nome</label>
-            <input id="nome" autocomplete="name" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.nome)}" placeholder="Como te chamamos" />
-            <div class="err" data-e="nome">Digite seu nome</div>
+      <div class="panel lead-panel">
+        <div class="lead-layout">
+          <div class="lead-intro">
+            <div class="q-kicker">Último passo</div>
+            <h1 class="q-title">Onde mandamos seu pré-orçamento?</h1>
+            <p class="q-sub">Usamos só para montar a mensagem e te atender no WhatsApp.</p>
+            <ul class="start-bullets desktop-only-bullets">
+              <li>Pré-orçamento calculado nas suas respostas</li>
+              <li>WhatsApp já com tudo preenchido</li>
+              <li>Só falta confirmar e fechar</li>
+            </ul>
           </div>
-          <div class="field">
-            <label for="cidade">Cidade</label>
-            <input id="cidade" autocomplete="address-level2" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.cidade)}" placeholder="Ex.: Florianópolis" />
-            <div class="err" data-e="cidade">Digite sua cidade</div>
-          </div>
-          <div class="field">
-            <label for="instagram">Instagram ou site <span>(opcional)</span></label>
-            <input id="instagram" enterkeyhint="next" maxlength="120" value="${esc(state.lead.instagram)}" placeholder="@suaempresa" />
-          </div>
-          <div class="field">
-            <label for="telefone">WhatsApp</label>
-            <input id="telefone" inputmode="numeric" autocomplete="tel" enterkeyhint="done" required value="${esc(state.lead.telefone)}" placeholder="(48) 99999-9999" />
-            <div class="err" data-e="telefone">Informe um telefone válido com DDD</div>
-          </div>
-          <button type="submit" class="cta">Ver meu pré-orçamento</button>
-        </form>
+          <form class="form lead-form" id="leadForm" novalidate>
+            <div class="field">
+              <label for="nome">Nome</label>
+              <input id="nome" autocomplete="name" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.nome)}" placeholder="Como te chamamos" />
+              <div class="err" data-e="nome">Digite seu nome</div>
+            </div>
+            <div class="field">
+              <label for="cidade">Cidade</label>
+              <input id="cidade" autocomplete="address-level2" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.cidade)}" placeholder="Ex.: Florianópolis" />
+              <div class="err" data-e="cidade">Digite sua cidade</div>
+            </div>
+            <div class="field field-wide">
+              <label for="instagram">Instagram ou site <span>(opcional)</span></label>
+              <input id="instagram" enterkeyhint="next" maxlength="120" value="${esc(state.lead.instagram)}" placeholder="@suaempresa" />
+            </div>
+            <div class="field field-wide">
+              <label for="telefone">WhatsApp</label>
+              <input id="telefone" inputmode="numeric" autocomplete="tel" enterkeyhint="done" required value="${esc(state.lead.telefone)}" placeholder="(48) 99999-9999" />
+              <div class="err" data-e="telefone">Informe um telefone válido com DDD</div>
+            </div>
+            <div class="field-wide">
+              <button type="submit" class="cta">Ver meu pré-orçamento</button>
+            </div>
+          </form>
+        </div>
       </div>
     `;
 
@@ -810,51 +827,71 @@
     const waUrl = buildWaUrl(quote);
 
     el.panel.innerHTML = `
-      <div class="panel">
-        <div class="result-head">
-          <span class="badge">Pré-orçamento</span>
-          <h2>Seu pré-orçamento está pronto</h2>
-          <p>
-            Com base no diagnóstico, montamos uma faixa estimada.
-            No WhatsApp você finaliza o pedido com a atendente.
-          </p>
+      <div class="panel result-panel">
+        <div class="result-layout">
+          <div class="result-main">
+            <div class="result-head">
+              <span class="badge">Pré-orçamento</span>
+              <h2>Seu pré-orçamento está pronto</h2>
+              <p>
+                Com base no diagnóstico, montamos uma faixa estimada.
+                No WhatsApp você finaliza o pedido com a atendente.
+              </p>
+            </div>
+
+            <div class="quote-card">
+              <div class="quote-label">${esc(quote.plan)}</div>
+              <div class="quote-price">${esc(quote.range)}</div>
+              <p class="quote-note">${esc(quote.disclaimer)}</p>
+              <ul class="quote-points">
+                <li>Roteiro e edição inclusos</li>
+                <li>Pronto para Reels e anúncios</li>
+                <li>Ajuste final no WhatsApp</li>
+              </ul>
+            </div>
+
+            <div class="needs">
+              ${chips.map((c) => `<span class="need-chip">${esc(c)}</span>`).join("")}
+            </div>
+
+            <a class="cta wa" id="waBtn" href="${esc(waUrl)}" rel="noopener">
+              <span class="ico" aria-hidden="true">${svg("wa")}</span>
+              Finalizar pedido no WhatsApp
+            </a>
+            <p class="fine">Sem nova aba · a conversa abre aqui mesmo</p>
+          </div>
+
+          <aside class="result-side">
+            <div class="side-card">
+              <h3 class="side-title">Resumo do diagnóstico</h3>
+              <dl class="summary tight side-summary">
+                ${rows
+                  .map(
+                    ([k, v]) => `
+                  <div class="sum-row">
+                    <dt>${esc(k)}</dt>
+                    <dd>${esc(v)}</dd>
+                  </div>`
+                  )
+                  .join("")}
+              </dl>
+            </div>
+            <details class="details-box mobile-only-details">
+              <summary>Ver resumo das respostas</summary>
+              <dl class="summary tight">
+                ${rows
+                  .map(
+                    ([k, v]) => `
+                  <div class="sum-row">
+                    <dt>${esc(k)}</dt>
+                    <dd>${esc(v)}</dd>
+                  </div>`
+                  )
+                  .join("")}
+              </dl>
+            </details>
+          </aside>
         </div>
-
-        <div class="quote-card">
-          <div class="quote-label">${esc(quote.plan)}</div>
-          <div class="quote-price">${esc(quote.range)}</div>
-          <p class="quote-note">${esc(quote.disclaimer)}</p>
-          <ul class="quote-points">
-            <li>Roteiro e edição inclusos</li>
-            <li>Pronto para Reels e anúncios</li>
-            <li>Ajuste final no WhatsApp</li>
-          </ul>
-        </div>
-
-        <div class="needs">
-          ${chips.map((c) => `<span class="need-chip">${esc(c)}</span>`).join("")}
-        </div>
-
-        <details class="details-box">
-          <summary>Ver resumo das respostas</summary>
-          <dl class="summary tight">
-            ${rows
-              .map(
-                ([k, v]) => `
-              <div class="sum-row">
-                <dt>${esc(k)}</dt>
-                <dd>${esc(v)}</dd>
-              </div>`
-              )
-              .join("")}
-          </dl>
-        </details>
-
-        <a class="cta wa" id="waBtn" href="${esc(waUrl)}" rel="noopener">
-          <span class="ico" aria-hidden="true">${svg("wa")}</span>
-          Finalizar pedido no WhatsApp
-        </a>
-        <p class="fine">Sem nova aba · a conversa abre aqui mesmo</p>
       </div>
     `;
 

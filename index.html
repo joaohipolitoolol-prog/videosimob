@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B0D10" />
+    <meta
+      name="description"
+      content="Diagnóstico e orçamento de vídeos imobiliários a partir de R$ 150. Responda e fale no WhatsApp."
+    />
+    <title>Orçamento · Vídeos Imobiliários</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="chrome">
+        <button type="button" class="nav-back" id="quizBack" hidden aria-label="Voltar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressRoot">
+          <div class="track-fill" id="progressBar"></div>
+        </div>
+        <span class="step" id="quizStepLabel"></span>
+      </header>
+      <main class="stage" id="quizPanel" aria-live="polite"></main>
+    </div>
+    <script src="js/app.js" defer></script>
+  </body>
+</html>

@@ -188,9 +188,6 @@
   const svg = (name) =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${I[name] || I.dots}</svg>`;
 
-  const isTouch = () =>
-    window.matchMedia("(max-width: 640px)").matches || "ontouchstart" in window;
-
   function load() {
     try {
       const raw = sessionStorage.getItem(KEY);
@@ -375,27 +372,81 @@
     render({ scroll: true });
   }
 
-  function buildRecChips() {
-    const chips = [];
-    const f = asList(state.answers.formato);
-    const m = asList(state.answers.material);
-    const q = asList(state.answers.quantidade);
-    const o = asList(state.answers.objetivo);
-    const p = asList(state.answers.prazo);
+  function buildQuote() {
+    const qty = asList(state.answers.quantidade)[0] || "";
+    const formats = asList(state.answers.formato);
+    const material = asList(state.answers.material);
+    const prazo = asList(state.answers.prazo)[0] || "";
 
-    if (f.length && !f.includes("Não sei, quero uma recomendação")) chips.push(...f.slice(0, 2));
-    else chips.push("Recomendação personalizada");
+    // Base anunciado: a partir de R$ 150
+    let unit = 150;
+    if (formats.includes("Vídeo com narração")) unit += 50;
+    if (formats.includes("Apresentação completa do imóvel")) unit += 40;
+    if (formats.includes("Anúncio para gerar contatos")) unit += 20;
+    if (formats.includes("Reels rápido e chamativo")) unit += 10;
 
-    if (m.some((x) => x === "Fotos" || x === "Vídeos gravados pelo celular" || x === "Filmagens profissionais")) {
-      chips.push("Produção com seu material");
+    const multiFormats = formats.filter((f) => f !== "Não sei, quero uma recomendação");
+    if (multiFormats.length > 1) unit += 15 * (multiFormats.length - 1);
+
+    if (material.includes("Ainda não tenho material")) unit += 20;
+    if (material.includes("Preciso de orientação para gravar")) unit += 30;
+
+    let min = unit;
+    let max = unit + 40;
+    let plan = "1 vídeo avulso";
+    let kind = "avulso";
+
+    if (qty.includes("2 a 4")) {
+      kind = "pacote";
+      plan = "Pacote de 2 a 4 vídeos";
+      min = Math.round(unit * 2.3);
+      max = Math.round(unit * 3.5);
+    } else if (qty.includes("5 a 8")) {
+      kind = "pacote";
+      plan = "Pacote de 5 a 8 vídeos";
+      min = Math.round(unit * 4.2);
+      max = Math.round(unit * 6);
+    } else if (qty.includes("Mais de 8") || qty.includes("por mês")) {
+      kind = "mensal";
+      plan = "Pacote mensal (mais de 8 vídeos)";
+      min = Math.round(unit * 6.5);
+      max = Math.round(unit * 9.5);
+    } else {
+      plan = "1 vídeo para testar";
+      min = unit;
+      max = unit + 50;
     }
-    if (m.includes("Ainda não tenho material") || m.includes("Preciso de orientação para gravar")) {
-      chips.push("Orientação de gravação");
+
+    // urgência
+    if (prazo === "O quanto antes") {
+      min = Math.round(min * 1.05);
+      max = Math.round(max * 1.08);
     }
-    if (q[0]) chips.push(q[0]);
-    if (o[0]) chips.push(o[0]);
-    if (p[0] === "O quanto antes" || p[0] === "Nesta semana") chips.push("Prioridade de entrega");
-    return [...new Set(chips)].slice(0, 6);
+
+    // arredonda para dezenas
+    const round10 = (n) => Math.round(n / 10) * 10;
+    min = round10(min);
+    max = round10(max);
+    if (max < min + 20) max = min + 30;
+
+    const range =
+      min === max ? money(min) : `${money(min)} – ${money(max)}`;
+
+    return {
+      min,
+      max,
+      unit,
+      plan,
+      kind,
+      range,
+      rangeShort: min === max ? money(min) : `a partir de ${money(min)}`,
+      disclaimer:
+        "Pré-orçamento estimado com base nas suas respostas. O valor final é confirmado no WhatsApp conforme duração e detalhes.",
+    };
+  }
+
+  function money(n) {
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
   }
 
   function startView() {
@@ -599,7 +650,7 @@
             <input id="telefone" inputmode="numeric" autocomplete="tel" enterkeyhint="done" required value="${esc(state.lead.telefone)}" placeholder="(48) 99999-9999" />
             <div class="err" data-e="telefone">Informe um telefone válido com DDD</div>
           </div>
-          <button type="submit" class="cta">Ver minha recomendação</button>
+          <button type="submit" class="cta">Ver meu pré-orçamento</button>
         </form>
       </div>
     `;
@@ -643,20 +694,21 @@
       { line: "Lendo seu perfil e objetivo…", idx: 0 },
       { line: "Cruzando material e formato…", idx: 1 },
       { line: "Definindo volume e prazo…", idx: 2 },
-      { line: "Montando seu orçamento…", idx: 3 },
+      { line: "Calculando pré-orçamento…", idx: 3 },
     ];
     let i = 0;
-    // ~4.2s total (feel of 4–5s)
-    const delay = 1000;
+    const delay = 950;
 
     const paint = () => {
       const line = document.getElementById("procLine");
       if (line) {
         line.style.opacity = "0";
         setTimeout(() => {
-          line.textContent = steps[i]?.line || "";
-          line.style.opacity = "1";
-        }, 120);
+          if (line) {
+            line.textContent = steps[i]?.line || "";
+            line.style.opacity = "1";
+          }
+        }, 100);
       }
       el.panel.querySelectorAll(".proc-step").forEach((node, n) => {
         node.classList.remove("active", "done");
@@ -673,16 +725,33 @@
         paint();
         state.timer = setTimeout(tick, delay);
       } else {
+        // todos done + confirmação visual
         el.panel.querySelectorAll(".proc-step").forEach((node) => {
           node.classList.remove("active");
           node.classList.add("done");
         });
+        const visual = el.panel.querySelector(".proc-visual");
+        const title = el.panel.querySelector(".proc h2");
+        const line = document.getElementById("procLine");
+        if (visual) {
+          visual.classList.add("is-done");
+          const core = visual.querySelector(".proc-core");
+          if (core) {
+            core.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
+          }
+        }
+        if (title) title.textContent = "Pré-orçamento pronto";
+        if (line) {
+          line.style.opacity = "1";
+          line.textContent = "Tudo certo. Abrindo seu resumo…";
+        }
         state.timer = setTimeout(() => {
           state.phase = "result";
           state.timer = null;
           save();
           render({ scroll: true });
-        }, 450);
+        }, 1100);
       }
     };
 
@@ -690,7 +759,7 @@
   }
 
   function processView() {
-    const labels = ["Perfil e objetivo", "Material e formato", "Volume e prazo", "Orçamento"];
+    const labels = ["Perfil e objetivo", "Material e formato", "Volume e prazo", "Pré-orçamento"];
     el.panel.innerHTML = `
       <div class="panel">
         <div class="proc">
@@ -698,7 +767,7 @@
             <div class="proc-ring"></div>
             <div class="proc-core">${svg("search")}</div>
           </div>
-          <h2>Analisando suas respostas</h2>
+          <h2>Montando seu pré-orçamento</h2>
           <p class="proc-line" id="procLine">Lendo seu perfil e objetivo…</p>
           <div class="proc-steps">
             ${labels
@@ -721,12 +790,14 @@
   const ans = (id) => displayAnswer(id);
 
   function resultView() {
-    const ig = state.lead.instagram.trim() || "Não informado";
-    const chips = buildRecChips();
+    const quote = buildQuote();
+    const chips = [
+      quote.plan,
+      ...asList(state.answers.formato).slice(0, 2),
+      ...asList(state.answers.quantidade).slice(0, 1),
+    ].filter(Boolean);
+
     const rows = [
-      ["Nome", state.lead.nome],
-      ["Cidade", state.lead.cidade],
-      ["WhatsApp", state.lead.telefone],
       ["Perfil", ans("perfil")],
       ["Divulgar", ans("divulgar")],
       ["Material", ans("material")],
@@ -734,54 +805,91 @@
       ["Quantidade", ans("quantidade")],
       ["Objetivo", ans("objetivo")],
       ["Prazo", ans("prazo")],
-      ["Instagram", ig],
     ];
+
+    const waUrl = buildWaUrl(quote);
 
     el.panel.innerHTML = `
       <div class="panel">
         <div class="result-head">
-          <span class="badge">Solicitação entendida</span>
-          <h2>Entendemos o que você precisa</h2>
+          <span class="badge">Pré-orçamento</span>
+          <h2>Seu pré-orçamento está pronto</h2>
           <p>
-            Com base nas suas respostas, montamos o perfil do projeto.
-            Clique abaixo e fale com a atendente — a mensagem já vai completa pro orçamento.
+            Com base no diagnóstico, montamos uma faixa estimada.
+            No WhatsApp você finaliza o pedido com a atendente.
           </p>
         </div>
+
+        <div class="quote-card">
+          <div class="quote-label">${esc(quote.plan)}</div>
+          <div class="quote-price">${esc(quote.range)}</div>
+          <p class="quote-note">${esc(quote.disclaimer)}</p>
+          <ul class="quote-points">
+            <li>Roteiro e edição inclusos</li>
+            <li>Pronto para Reels e anúncios</li>
+            <li>Ajuste final no WhatsApp</li>
+          </ul>
+        </div>
+
         <div class="needs">
           ${chips.map((c) => `<span class="need-chip">${esc(c)}</span>`).join("")}
         </div>
-        <dl class="summary">
-          ${rows
-            .map(
-              ([k, v]) => `
-            <div class="sum-row">
-              <dt>${esc(k)}</dt>
-              <dd>${esc(v)}</dd>
-            </div>`
-            )
-            .join("")}
-        </dl>
-        <button type="button" class="cta wa" id="waBtn">
+
+        <details class="details-box">
+          <summary>Ver resumo das respostas</summary>
+          <dl class="summary tight">
+            ${rows
+              .map(
+                ([k, v]) => `
+              <div class="sum-row">
+                <dt>${esc(k)}</dt>
+                <dd>${esc(v)}</dd>
+              </div>`
+              )
+              .join("")}
+          </dl>
+        </details>
+
+        <a class="cta wa" id="waBtn" href="${esc(waUrl)}" rel="noopener">
           <span class="ico" aria-hidden="true">${svg("wa")}</span>
-          Fazer orçamento no WhatsApp
-        </button>
-        <div class="trust-row">
-          <span>A partir de R$ 150</span>
-          <span>·</span>
-          <span>Atendimento direto</span>
-          <span>·</span>
-          <span>Resposta rápida</span>
-        </div>
+          Finalizar pedido no WhatsApp
+        </a>
+        <p class="fine">Sem nova aba · a conversa abre aqui mesmo</p>
       </div>
     `;
 
-    document.getElementById("waBtn").addEventListener("click", openWA);
+    // só mesma aba — evita window.open + navigation
+    const waBtn = document.getElementById("waBtn");
+    waBtn.addEventListener("click", (e) => {
+      if (state.waLock) {
+        e.preventDefault();
+        return;
+      }
+      const missingIdx = questions.findIndex((q) => !isAnswered(q.id));
+      if (missingIdx >= 0 || !validateSilent()) {
+        e.preventDefault();
+        if (missingIdx >= 0) {
+          state.phase = "questions";
+          state.step = missingIdx;
+          state._draftStep = null;
+          loadDraftFromAnswer();
+        } else state.phase = "lead";
+        save();
+        render({ scroll: true });
+        return;
+      }
+      state.waLock = true;
+      // força mesma aba
+      e.preventDefault();
+      window.location.assign(waUrl);
+    });
   }
 
-  function message() {
+  function message(quote) {
+    const q = quote || buildQuote();
     const ig = state.lead.instagram.trim() || "Não informado";
     return [
-      "Olá! Acabei de responder ao diagnóstico de vídeos imobiliários e quero fazer um orçamento.",
+      "Olá! Acabei de fazer o diagnóstico e quero finalizar meu pedido de vídeos imobiliários.",
       "",
       `Meu nome: ${state.lead.nome.trim()}`,
       `Cidade: ${state.lead.cidade.trim()}`,
@@ -794,28 +902,14 @@
       `Pretendo começar: ${ans("prazo")}`,
       `Instagram ou site: ${ig}`,
       "",
-      "Vi que os vídeos começam a partir de R$ 150 e gostaria de fechar o orçamento para o meu caso.",
+      `Pré-orçamento mostrado no site: ${q.range} (${q.plan})`,
+      "",
+      "Vi o pré-orçamento e quero finalizar o pedido com vocês.",
     ].join("\n");
   }
 
-  function openWA() {
-    const missingIdx = questions.findIndex((q) => !isAnswered(q.id));
-    if (missingIdx >= 0 || !validateSilent()) {
-      if (missingIdx >= 0) {
-        state.phase = "questions";
-        state.step = missingIdx;
-        loadDraftFromAnswer();
-      } else state.phase = "lead";
-      save();
-      render({ scroll: true });
-      return;
-    }
-    const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message())}`;
-    if (isTouch()) window.location.assign(url);
-    else {
-      const w = window.open(url, "_blank", "noopener,noreferrer");
-      if (!w) window.location.assign(url);
-    }
+  function buildWaUrl(quote) {
+    return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message(quote))}`;
   }
 
   function render(opts = {}) {

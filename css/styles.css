@@ -724,8 +724,115 @@ video {
   opacity: 0;
 }
 
-.proc-step.done .dot svg {
-  opacity: 1;
+.proc-visual.is-done .proc-ring {
+  animation: none;
+  border-color: var(--accent);
+  border-top-color: var(--accent);
+  border-right-color: var(--accent);
+  opacity: 0.35;
+}
+
+.proc-visual.is-done .proc-core {
+  background: linear-gradient(145deg, #0d9488, #0f766e);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.35);
+}
+
+/* Quote card */
+.quote-card {
+  margin: 0.25rem 0 1rem;
+  padding: 1.15rem 1.15rem 1.05rem;
+  border-radius: 18px;
+  background: linear-gradient(155deg, #0b0d10 0%, #14352f 55%, #0f766e 120%);
+  color: #fff;
+  box-shadow: 0 16px 40px rgba(15, 118, 110, 0.28);
+}
+
+.quote-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 0.4rem;
+}
+
+.quote-price {
+  font-size: clamp(1.55rem, 6.5vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 0.55rem;
+}
+
+.quote-note {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  opacity: 0.78;
+  margin-bottom: 0.85rem;
+}
+
+.quote-points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.quote-points li {
+  font-size: 0.84rem;
+  font-weight: 500;
+  opacity: 0.9;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.quote-points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+}
+
+.details-box {
+  margin: 0 0 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.details-box summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.details-box summary::-webkit-details-marker {
+  display: none;
+}
+
+.details-box[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.summary.tight {
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+}
+
+a.cta {
+  text-decoration: none;
 }
 
 @keyframes pulse {

@@ -2,6 +2,30 @@
   const WHATSAPP = "5548992156250";
   const KEY = "vi-quiz-v7";
 
+  // Pré-orçamento: base R$ 150 + extras por formato/material/volume.
+  // DIRECT_DISCOUNT aplica ~15% a menos no total (abordagem direta, fecha mais fácil).
+  const PRICING = {
+    baseUnit: 150,
+    floor: 150,
+    directDiscount: 0.85,
+    formatAddons: {
+      "Vídeo com narração": 42,
+      "Apresentação completa do imóvel": 32,
+      "Anúncio para gerar contatos": 15,
+      "Reels rápido e chamativo": 8,
+    },
+    extraFormatEach: 12,
+    noMaterial: 15,
+    filmingHelp: 22,
+    avulsoSpread: 28,
+    packageMultipliers: {
+      "2 a 4": { min: 2.2, max: 3.2 },
+      "5 a 8": { min: 3.8, max: 5.4 },
+      monthly: { min: 5.8, max: 8.2 },
+    },
+    urgencyBoost: { min: 1.03, max: 1.05 },
+  };
+
   const portfolio = [
     {
       title: "Persua VID 001",
@@ -368,57 +392,58 @@
     const formats = asList(state.answers.formato);
     const material = asList(state.answers.material);
     const prazo = asList(state.answers.prazo)[0] || "";
+    const p = PRICING;
 
-    // Base anunciado: a partir de R$ 150
-    let unit = 150;
-    if (formats.includes("Vídeo com narração")) unit += 50;
-    if (formats.includes("Apresentação completa do imóvel")) unit += 40;
-    if (formats.includes("Anúncio para gerar contatos")) unit += 20;
-    if (formats.includes("Reels rápido e chamativo")) unit += 10;
+    let unit = p.baseUnit;
+    for (const [label, add] of Object.entries(p.formatAddons)) {
+      if (formats.includes(label)) unit += add;
+    }
 
     const multiFormats = formats.filter((f) => f !== "Não sei, quero uma recomendação");
-    if (multiFormats.length > 1) unit += 15 * (multiFormats.length - 1);
+    if (multiFormats.length > 1) unit += p.extraFormatEach * (multiFormats.length - 1);
 
-    if (material.includes("Ainda não tenho material")) unit += 20;
-    if (material.includes("Preciso de orientação para gravar")) unit += 30;
+    if (material.includes("Ainda não tenho material")) unit += p.noMaterial;
+    if (material.includes("Preciso de orientação para gravar")) unit += p.filmingHelp;
 
     let min = unit;
-    let max = unit + 40;
+    let max = unit + p.avulsoSpread;
     let plan = "1 vídeo avulso";
     let kind = "avulso";
 
     if (qty.includes("2 a 4")) {
       kind = "pacote";
       plan = "Pacote de 2 a 4 vídeos";
-      min = Math.round(unit * 2.3);
-      max = Math.round(unit * 3.5);
+      min = Math.round(unit * p.packageMultipliers["2 a 4"].min);
+      max = Math.round(unit * p.packageMultipliers["2 a 4"].max);
     } else if (qty.includes("5 a 8")) {
       kind = "pacote";
       plan = "Pacote de 5 a 8 vídeos";
-      min = Math.round(unit * 4.2);
-      max = Math.round(unit * 6);
+      min = Math.round(unit * p.packageMultipliers["5 a 8"].min);
+      max = Math.round(unit * p.packageMultipliers["5 a 8"].max);
     } else if (qty.includes("Mais de 8") || qty.includes("por mês")) {
       kind = "mensal";
       plan = "Pacote mensal (mais de 8 vídeos)";
-      min = Math.round(unit * 6.5);
-      max = Math.round(unit * 9.5);
+      min = Math.round(unit * p.packageMultipliers.monthly.min);
+      max = Math.round(unit * p.packageMultipliers.monthly.max);
     } else {
       plan = "1 vídeo para testar";
       min = unit;
-      max = unit + 50;
+      max = unit + p.avulsoSpread;
     }
 
-    // urgência
     if (prazo === "O quanto antes") {
-      min = Math.round(min * 1.05);
-      max = Math.round(max * 1.08);
+      min = Math.round(min * p.urgencyBoost.min);
+      max = Math.round(max * p.urgencyBoost.max);
     }
 
-    // arredonda para dezenas
+    min = Math.round(min * p.directDiscount);
+    max = Math.round(max * p.directDiscount);
+
     const round10 = (n) => Math.round(n / 10) * 10;
     min = round10(min);
     max = round10(max);
-    if (max < min + 20) max = min + 30;
+    if (kind === "avulso") min = Math.max(p.floor, min);
+    if (max < min + 20) max = min + 20;
 
     const range =
       min === max ? money(min) : `${money(min)} – ${money(max)}`;

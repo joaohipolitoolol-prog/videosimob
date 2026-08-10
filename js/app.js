@@ -436,18 +436,20 @@
     return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
   }
 
+  function portfolioThumb(v) {
+    const id = v.youtube;
+    const thumb = `https://i.ytimg.com/vi/${id}/oardefault.jpg`;
+    const fallback = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    return `<button type="button" class="pf-play-btn" data-yt="${esc(id)}" aria-label="Assistir ${esc(v.title)}">
+      <img class="pf-thumb" src="${thumb}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'" />
+      <span class="pf-play-ring" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+    </button>`;
+  }
+
   function portfolioMedia(v) {
-    if (v.youtube) {
-      const embed = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.youtube)}?rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`;
-      return `<div class="pf-media-wrap pf-media-wrap--yt"><iframe
-        class="pf-yt"
-        src="${embed}"
-        title="${esc(v.title)}"
-        loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
-      ></iframe></div>`;
-    }
+    if (v.youtube) return portfolioThumb(v);
     return `<div class="pf-media-wrap"><video
       src="${esc(v.src)}"
       poster="${esc(v.poster || "")}"
@@ -459,20 +461,43 @@
     ></video></div>`;
   }
 
+  function mountPortfolioPlayers(root) {
+    root.querySelectorAll(".pf-play-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.yt;
+        if (!id) return;
+        const embed = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`;
+        const wrap = document.createElement("div");
+        wrap.className = "pf-media-wrap pf-media-wrap--live";
+        wrap.innerHTML = `<iframe
+          class="pf-yt"
+          src="${embed}"
+          title="Vídeo"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>`;
+        btn.replaceWith(wrap);
+      });
+    });
+  }
+
   function startView() {
     el.panel.innerHTML = `
       <div class="panel start-panel">
         <div class="start-layout">
           <div class="start-copy">
-            <h1 class="start-title">Vídeos profissionais para imóveis</h1>
-            <p class="start-lead">Diagnóstico rápido · pré-orçamento na hora</p>
+            <h1 class="start-title">Vídeos profissionais para o seu imóvel</h1>
+            <p class="start-lead">
+              Responda o diagnóstico e receba o pré-orçamento certo para o seu caso.
+              Leva menos de 2 minutos.
+            </p>
           </div>
 
           <div class="start-media">
             <div class="portfolio">
               <div class="portfolio-head">
-                <h2>Exemplos</h2>
-                <span class="pf-hint-mobile">Deslize</span>
+                <h2>Veja um pouco do trabalho</h2>
+                <span class="pf-hint-mobile">Deslize →</span>
               </div>
               <div class="pf-scroll">
                 ${portfolio
@@ -489,13 +514,16 @@
 
           <div class="start-actions">
             <button type="button" class="cta start-cta" id="startBtn">
-              Começar
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              Começar diagnóstico
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
             </button>
+            <p class="fine start-fine">No final você finaliza o pedido no WhatsApp</p>
           </div>
         </div>
       </div>
     `;
+
+    mountPortfolioPlayers(el.panel);
 
     document.getElementById("startBtn").addEventListener("click", () => {
       el.panel.querySelectorAll("video").forEach((v) => {

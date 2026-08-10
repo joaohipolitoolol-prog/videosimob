@@ -11,6 +11,10 @@
       title: "Persua VID 002",
       youtube: "m6v2stNcWsU",
     },
+    {
+      title: "Persua VID 003",
+      youtube: "SpuphJ_ysHg",
+    },
   ];
 
   const questions = [
@@ -488,8 +492,8 @@
           <div class="start-copy">
             <h1 class="start-title">Vídeos profissionais para o seu imóvel</h1>
             <p class="start-lead">
-              Responda o diagnóstico e receba o pré-orçamento certo para o seu caso.
-              Leva menos de 1 minuto.
+              Gostou do que viu? Aqui tem mais do nosso trabalho.
+              Responda o diagnóstico e receba seu pré-orçamento — leva menos de 1 minuto.
             </p>
           </div>
 

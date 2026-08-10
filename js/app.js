@@ -4,25 +4,12 @@
 
   const portfolio = [
     {
-      title: "Apresentação de imóvel",
-      tag: "Reels",
-      label: "Com narração e ritmo",
-      src: "https://videos.pexels.com/video-files/7578552/7578552-hd_1080_1920_25fps.mp4",
-      poster: "assets/galeria-apresentacao.jpg",
+      title: "Persua VID 001",
+      youtube: "aAmKHR3U56Q",
     },
     {
-      title: "Tour a partir de fotos",
-      tag: "Fotos → vídeo",
-      label: "Movimento e identidade",
-      src: "https://videos.pexels.com/video-files/5495907/5495907-hd_1080_1920_25fps.mp4",
-      poster: "assets/galeria-fotos.jpg",
-    },
-    {
-      title: "Anúncio para contatos",
-      tag: "Ads",
-      label: "Formato vertical pronto",
-      src: "https://videos.pexels.com/video-files/3773486/3773486-hd_1080_1920_25fps.mp4",
-      poster: "assets/galeria-anuncio.jpg",
+      title: "Persua VID 002",
+      youtube: "m6v2stNcWsU",
     },
   ];
 
@@ -449,50 +436,50 @@
     return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
   }
 
+  function portfolioMedia(v) {
+    if (v.youtube) {
+      const embed = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.youtube)}?rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`;
+      return `<div class="pf-media-wrap pf-media-wrap--yt"><iframe
+        class="pf-yt"
+        src="${embed}"
+        title="${esc(v.title)}"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe></div>`;
+    }
+    return `<div class="pf-media-wrap"><video
+      src="${esc(v.src)}"
+      poster="${esc(v.poster || "")}"
+      muted
+      playsinline
+      loop
+      preload="metadata"
+      controls
+    ></video></div>`;
+  }
+
   function startView() {
     el.panel.innerHTML = `
       <div class="panel start-panel">
         <div class="start-layout">
           <div class="start-copy">
-            <span class="start-price">Vídeos a partir de R$ 150</span>
-            <h1 class="start-title">Vídeos profissionais para o seu imóvel</h1>
-            <p class="start-lead">
-              Corretor, imobiliária ou construtora: responda o diagnóstico e receba o pré-orçamento
-              certo para o seu caso. Leva menos de 2 minutos.
-            </p>
-            <ul class="start-bullets">
-              <li>Entendemos perfil, material e volume</li>
-              <li>Pré-orçamento na hora + WhatsApp pra fechar</li>
-              <li>Pronto para Reels, anúncios e feed</li>
-            </ul>
+            <h1 class="start-title">Vídeos profissionais para imóveis</h1>
+            <p class="start-lead">Diagnóstico rápido · pré-orçamento na hora</p>
           </div>
 
           <div class="start-media">
             <div class="portfolio">
               <div class="portfolio-head">
-                <h2>Veja um pouco do trabalho</h2>
-                <span class="pf-hint-mobile">Deslize →</span>
-                <span class="pf-hint-desk">Exemplos de formato</span>
+                <h2>Exemplos</h2>
+                <span class="pf-hint-mobile">Deslize</span>
               </div>
               <div class="pf-scroll">
                 ${portfolio
                   .map(
                     (v) => `
-                  <article class="pf-card">
-                    <span class="pf-tag">${esc(v.tag)}</span>
-                    <video
-                      src="${esc(v.src)}"
-                      poster="${esc(v.poster)}"
-                      muted
-                      playsinline
-                      loop
-                      preload="metadata"
-                      controls
-                    ></video>
-                    <div class="pf-meta">
-                      <strong>${esc(v.title)}</strong>
-                      <span>${esc(v.label)}</span>
-                    </div>
+                  <article class="pf-card" aria-label="${esc(v.title)}">
+                    ${portfolioMedia(v)}
                   </article>`
                   )
                   .join("")}
@@ -502,20 +489,13 @@
 
           <div class="start-actions">
             <button type="button" class="cta start-cta" id="startBtn">
-              Começar diagnóstico
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              Começar
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
             </button>
-            <p class="fine start-fine">No final você só finaliza o pedido no WhatsApp</p>
           </div>
         </div>
       </div>
     `;
-
-    const first = el.panel.querySelector("video");
-    if (first) {
-      first.muted = true;
-      first.play?.().catch(() => {});
-    }
 
     document.getElementById("startBtn").addEventListener("click", () => {
       el.panel.querySelectorAll("video").forEach((v) => {
@@ -524,6 +504,9 @@
         } catch {
           /* */
         }
+      });
+      el.panel.querySelectorAll("iframe.pf-yt").forEach((frame) => {
+        frame.src = frame.src;
       });
       state.phase = "questions";
       if (!Number.isInteger(state.step) || state.step < 0) state.step = 0;

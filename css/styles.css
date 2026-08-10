@@ -286,8 +286,8 @@ video {
 
 .pf-card {
   flex: 0 0 auto;
-  width: min(72%, calc(50.4vh * 9 / 16));
-  height: 50.4vh;
+  width: min(72%, calc(55.44vh * 9 / 16));
+  height: 55.44vh;
   scroll-snap-align: start;
   border-radius: 14px;
   overflow: hidden;

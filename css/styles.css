@@ -1029,47 +1029,35 @@ a.cta {
   }
 }
 
-/* Tablet */
+/* Tablet — shell centrado, layout igual ao mobile */
 @media (min-width: 720px) {
   .app {
-    width: min(720px, calc(100% - 2rem));
-    min-height: calc(100dvh - 2.5rem);
-    margin: 1.25rem auto;
-    border-radius: 24px;
+    width: min(520px, calc(100% - 2rem));
+    min-height: calc(100dvh - 2rem);
+    margin: 1rem auto;
+    border-radius: 22px;
     overflow: hidden;
     box-shadow:
       0 0 0 1px rgba(0, 0, 0, 0.05),
-      0 30px 80px rgba(15, 23, 42, 0.12);
+      0 24px 64px rgba(15, 23, 42, 0.1);
   }
 
   .chrome {
-    padding: 1rem 1.5rem 0.9rem;
+    padding: 0.75rem 1.25rem 0.65rem;
   }
 
   .stage {
-    padding: 0.75rem 1.5rem 1.75rem;
-  }
-
-  .start-title {
-    font-size: 2.25rem;
-  }
-
-  .pf-card {
-    flex: 0 0 42%;
+    padding: 0.5rem 1.25rem 1.25rem;
   }
 
   .options {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.65rem;
+    gap: 0.55rem;
   }
 
   .opt {
-    min-height: 64px;
-  }
-
-  .q-footer {
-    margin-top: 1.35rem;
+    min-height: 58px;
   }
 
   .q-footer .cta {
@@ -1086,123 +1074,104 @@ a.cta {
     grid-column: span 2;
   }
 
-  .proc {
-    padding: 2.5rem 1rem;
-  }
-
   .quote-price {
-    font-size: 2rem;
+    font-size: 1.85rem;
   }
 }
 
-/* Desktop full */
+/* Desktop — portfólio em 3 colunas, funil centrado */
 @media (min-width: 1024px) {
   body {
     background:
-      radial-gradient(ellipse 70% 50% at 15% -10%, rgba(13, 148, 136, 0.14), transparent 50%),
-      radial-gradient(ellipse 50% 40% at 90% 100%, rgba(201, 162, 39, 0.1), transparent 45%),
+      radial-gradient(ellipse 70% 50% at 15% -10%, rgba(13, 148, 136, 0.12), transparent 50%),
+      radial-gradient(ellipse 50% 40% at 90% 100%, rgba(201, 162, 39, 0.08), transparent 45%),
       linear-gradient(180deg, #eef1f4 0%, #e5e7eb 100%);
   }
 
   .app {
-    width: min(1080px, calc(100% - 3rem));
-    min-height: min(860px, calc(100dvh - 3rem));
-    margin: 1.5rem auto;
-    border-radius: 28px;
+    width: min(880px, calc(100% - 3rem));
+    min-height: min(820px, calc(100dvh - 2rem));
+    margin: 1rem auto;
+    border-radius: 24px;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.05),
+      0 32px 80px rgba(15, 23, 42, 0.1);
   }
 
   .chrome {
-    padding: 1.1rem 2rem 1rem;
-    gap: 1rem;
+    padding: 1rem 2rem 0.85rem;
+    gap: 0.85rem;
+  }
+
+  .chrome.is-start {
+    padding: 0.85rem 2rem 0.75rem;
   }
 
   .track {
-    height: 6px;
+    height: 5px;
   }
 
   .stage {
-    padding: 1rem 2rem 2rem;
+    padding: 0.75rem 2rem 1.75rem;
   }
 
-  /* Start: 2 columns */
+  /* Start — coluna centrada + 3 vídeos lado a lado */
   .start-panel {
     justify-content: center;
-    min-height: 100%;
   }
 
   .start-layout {
-    display: grid;
-    flex: 1;
-    width: 100%;
-    grid-template-columns: 1.05fr 0.95fr;
-    grid-template-areas:
-      "copy media"
-      "actions media";
-    column-gap: 2.5rem;
-    row-gap: 0;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    min-height: 520px;
+    gap: 1.15rem;
+    max-width: 680px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: auto;
   }
 
   .start-copy {
-    align-self: end;
-  }
-
-  .start-actions {
-    align-self: start;
-    margin-top: 1.35rem;
-  }
-
-  .start-media {
-    align-self: center;
+    text-align: center;
+    max-width: 480px;
   }
 
   .start-title {
-    font-size: clamp(1.65rem, 2.5vw, 2rem);
-    max-width: 14ch;
-    margin-bottom: 0.5rem;
+    font-size: 1.85rem;
+    max-width: none;
+    margin-bottom: 0.45rem;
   }
 
   .start-lead {
-    font-size: 0.95rem;
-    max-width: 34ch;
-    margin-bottom: 0.75rem;
+    font-size: 0.94rem;
+    max-width: none;
+    line-height: 1.5;
   }
 
-  .start-bullets {
-    margin-bottom: 0;
-    gap: 0.65rem;
-  }
-
-  .start-bullets li {
-    font-size: 0.98rem;
-  }
-
-  .start-cta {
-    width: auto;
-    min-width: 280px;
-    max-width: 320px;
-  }
-
-  .start-fine {
-    text-align: left;
-    margin-top: 0.85rem;
+  .start-media {
+    width: 100%;
+    flex: none;
+    min-height: 0;
   }
 
   .portfolio {
-    margin: 0;
-    padding: 1.15rem;
-    border-radius: 20px;
+    width: 100%;
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
     background: var(--bg);
     border: 1px solid var(--line);
   }
 
   .portfolio-head {
-    margin-bottom: 0.9rem;
+    margin-bottom: 0.7rem;
   }
 
   .portfolio-head h2 {
-    font-size: 1.05rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 
   .pf-hint-mobile {
@@ -1211,133 +1180,145 @@ a.cta {
 
   .pf-hint-desk {
     display: inline;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    color: var(--muted);
+    color: var(--muted-2);
   }
 
   .pf-scroll {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
     overflow: visible;
-    margin: 0;
-    padding: 0;
+    flex: none;
+    min-height: 0;
+    align-items: stretch;
+    padding-bottom: 0;
   }
 
   .pf-card {
-    flex: none;
     width: 100%;
-    height: auto;
-    aspect-ratio: 9 / 16;
+    height: 260px;
+    flex: none;
+    scroll-snap-align: none;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
   }
 
-  /* Quiz desktop */
+  .start-actions {
+    width: 100%;
+    max-width: 360px;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .start-cta {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  /* Quiz / lead / result centrados */
   .q-panel {
-    max-width: 860px;
+    max-width: 600px;
     margin: 0 auto;
     width: 100%;
   }
 
-  .q-kicker {
-    font-size: 0.8rem;
-  }
-
   .q-title {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.65rem;
+    max-width: none;
+    margin-bottom: 0.85rem;
   }
 
   .q-hint {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
   }
 
   .options {
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    gap: 0.6rem;
   }
 
   .opt {
-    min-height: 72px;
-    padding: 1rem 1.1rem;
+    min-height: 64px;
+    padding: 0.85rem 1rem;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
   }
 
   .opt:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
   }
 
   .opt-txt {
-    font-size: 1rem;
+    font-size: 0.92rem;
   }
 
   .q-footer {
     display: flex;
     justify-content: flex-end;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
     background: transparent;
   }
 
   .q-footer .cta {
     width: auto;
-    min-width: 240px;
+    min-width: 220px;
     max-width: none;
   }
 
-  /* Lead desktop */
   .lead-panel {
     justify-content: center;
   }
 
   .lead-layout {
     display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: 2.5rem;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 2rem;
     align-items: start;
-    max-width: 920px;
+    max-width: 720px;
     margin: 0 auto;
     width: 100%;
-    padding-top: 0.5rem;
+    padding-top: 0.25rem;
   }
 
   .desktop-only-bullets {
     display: grid;
-    margin-top: 1.25rem;
+    margin-top: 1rem;
   }
 
   .lead-intro .q-title {
-    font-size: 2rem;
-    max-width: 14ch;
+    font-size: 1.65rem;
+    max-width: none;
+    text-align: left;
+  }
+
+  .lead-intro .q-sub {
+    text-align: left;
   }
 
   .lead-form {
-    padding: 1.35rem;
-    border-radius: 20px;
+    padding: 1.25rem;
+    border-radius: 16px;
     background: var(--bg);
     border: 1px solid var(--line);
   }
 
-  .lead-form .cta {
-    margin-top: 0.25rem;
-  }
-
-  /* Process */
   .proc {
-    min-height: 480px;
+    min-height: 420px;
+    padding: 2rem 1rem;
   }
 
   .proc h2 {
-    font-size: 1.75rem;
+    font-size: 1.55rem;
   }
 
   .proc-steps {
-    max-width: 340px;
+    max-width: 320px;
   }
 
-  /* Result desktop */
   .result-panel {
     justify-content: center;
   }
@@ -1345,41 +1326,37 @@ a.cta {
   .result-layout {
     display: grid;
     grid-template-columns: 1.15fr 0.85fr;
-    gap: 1.75rem;
+    gap: 1.5rem;
     align-items: start;
-    max-width: 960px;
+    max-width: 760px;
     margin: 0 auto;
     width: 100%;
   }
 
   .result-main .result-head h2 {
-    font-size: 2rem;
+    font-size: 1.65rem;
   }
 
   .quote-card {
-    padding: 1.4rem 1.4rem 1.25rem;
+    padding: 1.25rem;
   }
 
   .quote-price {
-    font-size: 2.15rem;
-  }
-
-  .result-main .cta.wa {
-    max-width: 100%;
+    font-size: 1.85rem;
   }
 
   .side-card {
     display: block;
-    padding: 1.2rem;
-    border-radius: 20px;
+    padding: 1.1rem;
+    border-radius: 16px;
     background: var(--bg);
     border: 1px solid var(--line);
     position: sticky;
-    top: 5rem;
+    top: 4.5rem;
   }
 
   .side-summary {
-    max-height: min(52vh, 420px);
+    max-height: min(48vh, 380px);
     overflow-y: auto;
   }
 
@@ -1394,11 +1371,23 @@ a.cta {
 
 @media (min-width: 1280px) {
   .app {
-    width: min(1140px, calc(100% - 4rem));
+    width: min(920px, calc(100% - 4rem));
   }
 
   .start-layout {
-    column-gap: 3rem;
+    max-width: 720px;
+  }
+
+  .pf-card {
+    height: 280px;
+  }
+
+  .q-panel {
+    max-width: 640px;
+  }
+
+  .result-layout {
+    max-width: 800px;
   }
 }
 

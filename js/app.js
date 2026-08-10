@@ -502,6 +502,7 @@
               <div class="portfolio-head">
                 <h2>Veja um pouco do trabalho</h2>
                 <span class="pf-hint-mobile">Deslize →</span>
+                <span class="pf-hint-desk">Toque para assistir</span>
               </div>
               <div class="pf-scroll">
                 ${portfolio

@@ -1,7 +1,7 @@
 {
-  "name": "Vídeos Imobiliários",
-  "short_name": "Vídeo Imob",
-  "description": "Diagnóstico e pré-orçamento de vídeos imobiliários",
+  "name": "PERSUA Vídeos",
+  "short_name": "PERSUA",
+  "description": "Vídeos profissionais para imóveis e corretores",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

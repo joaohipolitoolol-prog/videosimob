@@ -946,7 +946,7 @@ a.cta {
 }
 
 .sum-row:nth-child(even) {
-  background: #fafbfc;
+  background: var(--row-alt, #fafbfc);
 }
 
 .sum-row dt {
@@ -1481,6 +1481,7 @@ a.cta {
   --accent-soft: rgba(249, 115, 22, 0.14);
   --glow: rgba(249, 115, 22, 0.28);
   --gold: #fb923c;
+  --row-alt: #1c1c1f;
 }
 
 .theme-digital body,
@@ -1568,6 +1569,35 @@ body.theme-digital {
 
 .theme-digital .pf-card-ico {
   background: #121214;
+}
+
+.theme-digital .details-box {
+  background: #18181b;
+  border-color: var(--line);
+}
+
+.theme-digital .details-box summary {
+  color: var(--ink);
+}
+
+.theme-digital .summary {
+  border-color: var(--line);
+}
+
+.theme-digital .sum-row {
+  background: #18181b;
+}
+
+.theme-digital .sum-row:nth-child(even) {
+  background: var(--row-alt);
+}
+
+.theme-digital .sum-row dt {
+  color: var(--muted);
+}
+
+.theme-digital .sum-row dd {
+  color: var(--ink-2);
 }
 
 @media (min-width: 720px) {

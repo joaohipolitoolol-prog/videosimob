@@ -1600,6 +1600,22 @@ body.theme-digital {
   color: var(--ink-2);
 }
 
+.theme-digital .q-footer {
+  background: linear-gradient(180deg, rgba(18, 18, 20, 0) 0%, var(--surface) 28%);
+}
+
+.theme-digital .cta {
+  background: linear-gradient(180deg, #fdba74 0%, var(--accent) 42%, var(--accent-2) 100%);
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(249, 115, 22, 0.38);
+}
+
+.theme-digital .cta:disabled {
+  background: linear-gradient(180deg, #3f3f46 0%, #27272a 100%);
+  color: #a1a1aa;
+  box-shadow: none;
+}
+
 @media (min-width: 720px) {
   body.theme-digital {
     background:

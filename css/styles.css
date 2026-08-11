@@ -1423,3 +1423,166 @@ a.cta {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Portfolio cards (digital funnel) */
+.pf-card-static {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  height: 100%;
+  min-height: 220px;
+  padding: 1.1rem 1rem 1.15rem;
+  border-radius: calc(var(--r) - 2px);
+  background: linear-gradient(160deg, var(--accent-soft), var(--surface));
+  border: 1px solid var(--line);
+}
+
+.pf-card-ico {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.pf-card-ico svg {
+  width: 22px;
+  height: 22px;
+}
+
+.pf-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.pf-card-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Digital theme · black + orange */
+.theme-digital {
+  --bg: #0a0a0b;
+  --surface: #121214;
+  --ink: #f5f5f5;
+  --ink-2: #e5e5e5;
+  --muted: #a1a1aa;
+  --muted-2: #71717a;
+  --line: #27272a;
+  --line-strong: #3f3f46;
+  --accent: #f97316;
+  --accent-2: #ea580c;
+  --accent-soft: rgba(249, 115, 22, 0.14);
+  --glow: rgba(249, 115, 22, 0.28);
+  --gold: #fb923c;
+}
+
+.theme-digital body,
+body.theme-digital {
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -20%, rgba(249, 115, 22, 0.14), transparent 55%),
+    radial-gradient(ellipse 70% 40% at 100% 100%, rgba(234, 88, 12, 0.1), transparent 50%),
+    var(--bg);
+}
+
+.theme-digital .app {
+  background: var(--surface);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+
+.theme-digital .chrome {
+  background: rgba(18, 18, 20, 0.9);
+}
+
+.theme-digital .track-fill {
+  background: linear-gradient(90deg, var(--accent-2), var(--accent), #fdba74);
+}
+
+.theme-digital .opt {
+  background: #18181b;
+  border-color: var(--line);
+}
+
+.theme-digital .opt.is-on {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, rgba(249, 115, 22, 0.12), #18181b);
+}
+
+.theme-digital .opt-ico {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.theme-digital .field input {
+  background: #18181b;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.theme-digital .field input::placeholder {
+  color: var(--muted-2);
+}
+
+.theme-digital .quote-card,
+.theme-digital .side-card,
+.theme-digital .pf-card-static {
+  background: #18181b;
+  border-color: var(--line);
+}
+
+.theme-digital .quote-price {
+  color: var(--accent);
+}
+
+.theme-digital .badge {
+  background: var(--accent-soft);
+  color: #fdba74;
+}
+
+.theme-digital .need-chip {
+  background: #1c1c1f;
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
+.theme-digital .proc-ring {
+  border-color: rgba(249, 115, 22, 0.25);
+  border-top-color: var(--accent);
+}
+
+.theme-digital .proc-core {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.theme-digital .pf-card-static {
+  background: linear-gradient(160deg, rgba(249, 115, 22, 0.1), #18181b);
+}
+
+.theme-digital .pf-card-ico {
+  background: #121214;
+}
+
+@media (min-width: 720px) {
+  body.theme-digital {
+    background:
+      radial-gradient(ellipse 80% 55% at 50% -15%, rgba(249, 115, 22, 0.12), transparent 55%),
+      radial-gradient(ellipse 60% 35% at 100% 100%, rgba(234, 88, 12, 0.08), transparent 50%),
+      var(--bg);
+  }
+
+  .theme-digital .app {
+    border-radius: 24px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    min-height: calc(100dvh - 2rem);
+  }
+}
+

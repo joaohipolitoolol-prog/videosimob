@@ -11,9 +11,9 @@ window.FUNNEL_CONFIG = {
   ],
 
   copy: {
-    startTitle: "VSL e criativos que convertem no tráfego",
+    startTitle: "VSL e criativos para escalar no digital",
     startLead:
-      "Gostou do criativo? Veja o que a PERSUA faz para infoprodutores, nutra e quem roda campanha. Responda o diagnóstico e receba seu pré-orçamento em menos de 1 minuto.",
+      "Separei alguns trabalhos nossos pra você ver. Responda o diagnóstico e receba seu pré-orçamento — leva menos de 1 minuto.",
     portfolioHead: "Veja um pouco do trabalho",
     portfolioHintDesk: "Toque para assistir",
     startCta: "Começar diagnóstico",

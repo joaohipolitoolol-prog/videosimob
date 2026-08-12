@@ -4,9 +4,9 @@ window.FUNNEL_CONFIG = {
   brand: "PERSUA Digital",
 
   portfolio: [
+    { title: "Persua Mini VSL 01", youtube: "bTCXXBn_36g" },
     { title: "Persua CT 01", youtube: "OQ9CBnMNUC8" },
     { title: "Persua CT 02", youtube: "R304PIS2NEY" },
-    { title: "Persua Mini VSL 01", youtube: "bTCXXBn_36g" },
     { title: "Persua CT 03", youtube: "2bzvNPOT_Co" },
   ],
 

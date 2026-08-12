@@ -4,7 +4,9 @@
 
   const { whatsapp: WHATSAPP, storageKey: KEY, questions, portfolio, copy: COPY } = CONFIG;
 
-  const TOTAL = questions.length + 1;
+  const TOTAL = questions.length + 2;
+  const STEP_DELAY = 1200;
+  const FINAL_DELAY = 1700;
 
   const I = {
     user: '<path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/>',
@@ -97,7 +99,7 @@
       if (s.answers && typeof s.answers === "object") state.answers = s.answers;
       if (s.lead && typeof s.lead === "object") state.lead = { ...state.lead, ...s.lead };
       if (Number.isInteger(s.step) && s.step >= 0 && s.step < questions.length) state.step = s.step;
-      if (["start", "questions", "lead", "result"].includes(s.phase)) state.phase = s.phase;
+      if (["start", "questions", "name", "lead", "result"].includes(s.phase)) state.phase = s.phase;
     } catch {
       /* */
     }
@@ -105,7 +107,12 @@
 
   function save() {
     try {
-      const phase = state.phase === "processing" ? "lead" : state.phase;
+      const phase =
+        state.phase === "processing"
+          ? state.lead.nome.trim().length >= 2
+            ? "lead"
+            : "name"
+          : state.phase;
       sessionStorage.setItem(
         KEY,
         JSON.stringify({
@@ -123,13 +130,15 @@
   function progressPct() {
     if (state.phase === "start") return 0;
     if (state.phase === "result" || state.phase === "processing") return 100;
-    if (state.phase === "lead") return Math.round((questions.length / TOTAL) * 100);
+    if (state.phase === "lead") return Math.round(((questions.length + 2) / TOTAL) * 100);
+    if (state.phase === "name") return Math.round(((questions.length + 1) / TOTAL) * 100);
     return Math.round(((state.step + 1) / TOTAL) * 100);
   }
 
   function stepText() {
     if (state.phase === "start") return "";
     if (state.phase === "questions") return `${state.step + 1}/${TOTAL}`;
+    if (state.phase === "name") return `${questions.length + 1}/${TOTAL}`;
     if (state.phase === "lead") return `${TOTAL}/${TOTAL}`;
     if (state.phase === "processing") return "…";
     return "OK";
@@ -144,7 +153,10 @@
     el.chrome?.classList.toggle("is-start", state.phase === "start");
 
     const canBack =
-      state.phase === "lead" || state.phase === "result" || state.phase === "questions";
+      state.phase === "name" ||
+      state.phase === "lead" ||
+      state.phase === "result" ||
+      state.phase === "questions";
 
     el.back.hidden = !canBack || state.phase === "start" || state.phase === "processing";
   }
@@ -241,7 +253,7 @@
       state._draftStep = null;
       loadDraftFromAnswer();
     } else {
-      state.phase = "lead";
+      state.phase = "name";
       state.draft = [];
       state._draftStep = null;
     }
@@ -254,6 +266,8 @@
     if (state.phase === "processing" || state.phase === "start") return;
     if (state.phase === "result") state.phase = "lead";
     else if (state.phase === "lead") {
+      state.phase = "name";
+    } else if (state.phase === "name") {
       state.phase = "questions";
       state.step = questions.length - 1;
       loadDraftFromAnswer();
@@ -411,10 +425,6 @@
 
   function validateLead() {
     let ok = true;
-    if (state.lead.nome.trim().length < 2) {
-      showErr("nome");
-      ok = false;
-    }
     if (state.lead.cidade.trim().length < 2) {
       showErr("cidade");
       ok = false;
@@ -425,6 +435,29 @@
       ok = false;
     }
     return ok;
+  }
+
+  function validateName() {
+    return state.lead.nome.trim().length >= 2;
+  }
+
+  function firstName() {
+    return state.lead.nome.trim().split(/\s+/)[0] || "";
+  }
+
+  function personalize(text, noNameFallback) {
+    if (!text) return text;
+    const name = firstName();
+    if (!name) {
+      if (noNameFallback) return noNameFallback;
+      return text
+        .replace(/\{nome\},?\s*/g, "")
+        .replace(/,\s*\{nome\}/g, "")
+        .replace(/\{nome\}/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    }
+    return text.replace(/\{nome\}/g, name);
   }
 
   function validateSilent() {
@@ -485,6 +518,52 @@
     document.getElementById("confirmBtn").addEventListener("click", confirmAnswer);
   }
 
+  function nameView() {
+    el.panel.innerHTML = `
+      <div class="panel name-panel">
+        <div class="name-layout">
+          <div class="q-kicker">Quase lá</div>
+          <h1 class="q-title">${esc(COPY.nameTitle || "Como posso te chamar?")}</h1>
+          <p class="q-sub">${esc(COPY.nameSub || "Só para personalizar seu diagnóstico.")}</p>
+          <form class="form name-form" id="nameForm" novalidate>
+            <div class="field field-wide">
+              <label for="nome">Seu nome</label>
+              <input id="nome" autocomplete="name" enterkeyhint="done" required maxlength="80" value="${esc(state.lead.nome)}" placeholder="Ex.: João" />
+              <div class="err" data-e="nome">Digite seu nome</div>
+            </div>
+            <button type="submit" class="cta">${esc(COPY.nameCta || COPY.leadCta)}</button>
+          </form>
+        </div>
+      </div>
+    `;
+
+    const input = document.getElementById("nome");
+    input.addEventListener("input", () => {
+      state.lead.nome = input.value;
+      save();
+      clearErr("nome");
+    });
+    input.addEventListener("focus", () => {
+      setTimeout(() => input.scrollIntoView({ block: "center", behavior: "smooth" }), 280);
+    });
+
+    document.getElementById("nameForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      state.lead.nome = input.value.trim();
+      if (!validateName()) {
+        showErr("nome");
+        input.focus();
+        return;
+      }
+      save();
+      state.phase = "processing";
+      render();
+      runProcess();
+    });
+
+    setTimeout(() => input.focus(), 120);
+  }
+
   function leadView() {
     el.panel.innerHTML = `
       <div class="panel lead-panel">
@@ -498,11 +577,6 @@
             </ul>
           </div>
           <form class="form lead-form" id="leadForm" novalidate>
-            <div class="field">
-              <label for="nome">Nome</label>
-              <input id="nome" autocomplete="name" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.nome)}" placeholder="Como te chamamos" />
-              <div class="err" data-e="nome">Digite seu nome</div>
-            </div>
             <div class="field">
               <label for="cidade">Cidade</label>
               <input id="cidade" autocomplete="address-level2" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.cidade)}" placeholder="Ex.: Florianópolis" />
@@ -530,7 +604,7 @@
       tel.value = maskPhone(tel.value);
     });
 
-    ["nome", "cidade", "instagram", "telefone"].forEach((id) => {
+    ["cidade", "instagram", "telefone"].forEach((id) => {
       const input = document.getElementById(id);
       input.addEventListener("input", () => {
         state.lead[id] = input.value;
@@ -544,7 +618,6 @@
 
     document.getElementById("leadForm").addEventListener("submit", (e) => {
       e.preventDefault();
-      state.lead.nome = document.getElementById("nome").value;
       state.lead.cidade = document.getElementById("cidade").value;
       state.lead.instagram = document.getElementById("instagram").value;
       state.lead.telefone = document.getElementById("telefone").value;
@@ -553,16 +626,15 @@
         return;
       }
       save();
-      state.phase = "processing";
-      render();
-      runProcess();
+      state.phase = "result";
+      render({ scroll: true });
     });
   }
 
   function runProcess() {
-    const steps = CONFIG.processSteps.map((line, idx) => ({ line, idx }));
+    const steps = CONFIG.processSteps.map((line, idx) => ({ line: personalize(line), idx }));
     let i = 0;
-    const delay = 950;
+    const delay = STEP_DELAY;
 
     const paint = () => {
       const line = document.getElementById("procLine");
@@ -605,17 +677,17 @@
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
           }
         }
-        if (title) title.textContent = COPY.processDone;
+        if (title) title.textContent = personalize(COPY.processDone);
         if (line) {
           line.style.opacity = "1";
-          line.textContent = COPY.processOpen;
+          line.textContent = personalize(COPY.processOpen, "Tudo certo. Abrindo seu resumo…");
         }
         state.timer = setTimeout(() => {
-          state.phase = "result";
+          state.phase = "lead";
           state.timer = null;
           save();
           render({ scroll: true });
-        }, 1100);
+        }, FINAL_DELAY);
       }
     };
 
@@ -630,8 +702,8 @@
             <div class="proc-ring"></div>
             <div class="proc-core">${svg("search")}</div>
           </div>
-          <h2>${esc(COPY.processTitle)}</h2>
-          <p class="proc-line" id="procLine">${esc(CONFIG.processSteps[0])}</p>
+          <h2>${esc(personalize(COPY.processTitle, COPY.processTitleFallback))}</h2>
+          <p class="proc-line" id="procLine">${esc(personalize(CONFIG.processSteps[0]))}</p>
           <div class="proc-steps">
             ${CONFIG.processLabels
               .map(
@@ -667,7 +739,7 @@
           <div class="result-main">
             <div class="result-head">
               <span class="badge">${esc(COPY.resultBadge)}</span>
-              <h2>${esc(COPY.resultTitle)}</h2>
+              <h2>${esc(personalize(COPY.resultTitle, "Seu pré-orçamento está pronto"))}</h2>
               <p>${esc(COPY.resultSub)}</p>
             </div>
 
@@ -739,7 +811,11 @@
           state.step = missingIdx;
           state._draftStep = null;
           loadDraftFromAnswer();
-        } else state.phase = "lead";
+        } else if (!validateName()) {
+          state.phase = "name";
+        } else {
+          state.phase = "lead";
+        }
         save();
         render({ scroll: true });
         return;
@@ -777,6 +853,7 @@
     chrome();
     if (state.phase === "start") startView();
     else if (state.phase === "questions") questionsView();
+    else if (state.phase === "name") nameView();
     else if (state.phase === "lead") leadView();
     else if (state.phase === "processing") processView();
     else resultView();

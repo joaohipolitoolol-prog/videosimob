@@ -18,18 +18,22 @@ window.FUNNEL_CONFIG = {
     portfolioHintDesk: "Toque para assistir",
     startCta: "Começar diagnóstico",
     leadTitle: "Onde mandamos seu pré-orçamento?",
-    leadSub: "Usamos só para montar a mensagem e te atender no WhatsApp.",
+    leadSub: "Último passo — usamos só para montar a mensagem e te atender no WhatsApp.",
+    nameTitle: "Como posso te chamar?",
+    nameSub: "Só para personalizar seu diagnóstico.",
+    nameCta: "Montar meu pré-orçamento",
     leadBullets: [
       "Pré-orçamento calculado nas suas respostas",
       "WhatsApp já com tudo preenchido",
       "Só falta confirmar e fechar",
     ],
     leadCta: "Ver meu pré-orçamento",
-    processTitle: "Montando seu pré-orçamento",
+    processTitle: "Montando seu pré-orçamento, {nome}",
+    processTitleFallback: "Montando seu pré-orçamento",
     processDone: "Pré-orçamento pronto",
-    processOpen: "Tudo certo. Abrindo seu resumo…",
+    processOpen: "Tudo certo, {nome}. Abrindo seu resumo…",
     resultBadge: "Pré-orçamento",
-    resultTitle: "Seu pré-orçamento está pronto",
+    resultTitle: "{nome}, seu pré-orçamento está pronto",
     resultSub:
       "Com base no diagnóstico, montamos uma faixa estimada. No WhatsApp você finaliza o pedido com a equipe.",
     quotePoints: [
@@ -44,7 +48,7 @@ window.FUNNEL_CONFIG = {
   },
 
   processSteps: [
-    "Analisando seu nicho e oferta…",
+    "Analisando seu nicho, {nome}…",
     "Cruzando entrega, copy e material…",
     "Definindo volume e prazo…",
     "Calculando pré-orçamento…",

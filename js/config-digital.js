@@ -4,32 +4,18 @@ window.FUNNEL_CONFIG = {
   brand: "PERSUA Digital",
 
   portfolio: [
-    {
-      type: "card",
-      icon: "video",
-      title: "VSL de alta conversão",
-      desc: "Roteiro, edição dinâmica e motion para escalar tráfego.",
-    },
-    {
-      type: "card",
-      icon: "bolt",
-      title: "Criativos para Meta & TikTok",
-      desc: "Hooks, cortes rápidos e variações para testar campanhas.",
-    },
-    {
-      type: "card",
-      icon: "users",
-      title: "UGC & depoimentos",
-      desc: "Estilo nativo que parece orgânico e performa em ads.",
-    },
+    { title: "Persua CT 01", youtube: "OQ9CBnMNUC8" },
+    { title: "Persua CT 02", youtube: "R304PIS2NEY" },
+    { title: "Persua Mini VSL 01", youtube: "bTCXXBn_36g" },
+    { title: "Persua CT 03", youtube: "2bzvNPOT_Co" },
   ],
 
   copy: {
     startTitle: "VSL e criativos que convertem no tráfego",
     startLead:
       "Gostou do criativo? Veja o que a PERSUA faz para infoprodutores, nutra e quem roda campanha. Responda o diagnóstico e receba seu pré-orçamento em menos de 1 minuto.",
-    portfolioHead: "O que entregamos",
-    portfolioHintDesk: "Formatos que produzimos",
+    portfolioHead: "Veja um pouco do trabalho",
+    portfolioHintDesk: "Toque para assistir",
     startCta: "Começar diagnóstico",
     leadTitle: "Onde mandamos seu pré-orçamento?",
     leadSub: "Usamos só para montar a mensagem e te atender no WhatsApp.",

@@ -436,19 +436,9 @@
     return state.lead.nome.trim().split(/\s+/)[0] || "";
   }
 
-  function personalize(text, noNameFallback) {
-    if (!text) return text;
+  function resultTitle() {
     const name = firstName();
-    if (!name) {
-      if (noNameFallback) return noNameFallback;
-      return text
-        .replace(/\{nome\},?\s*/g, "")
-        .replace(/,\s*\{nome\}/g, "")
-        .replace(/\{nome\}/g, "")
-        .replace(/\s{2,}/g, " ")
-        .trim();
-    }
-    return text.replace(/\{nome\}/g, name);
+    return name ? `${name}, ${COPY.resultTitle.charAt(0).toLowerCase()}${COPY.resultTitle.slice(1)}` : COPY.resultTitle;
   }
 
   function validateSilent() {
@@ -590,7 +580,7 @@
   }
 
   function runProcess() {
-    const steps = CONFIG.processSteps.map((line, idx) => ({ line: personalize(line), idx }));
+    const steps = CONFIG.processSteps.map((line, idx) => ({ line, idx }));
     let i = 0;
     const delay = STEP_DELAY;
 
@@ -635,10 +625,10 @@
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
           }
         }
-        if (title) title.textContent = personalize(COPY.processDone);
+        if (title) title.textContent = COPY.processDone;
         if (line) {
           line.style.opacity = "1";
-          line.textContent = personalize(COPY.processOpen, "Tudo certo. Abrindo seu resumo…");
+          line.textContent = COPY.processOpen;
         }
         state.timer = setTimeout(() => {
           state.phase = "result";
@@ -660,8 +650,8 @@
             <div class="proc-ring"></div>
             <div class="proc-core">${svg("search")}</div>
           </div>
-          <h2>${esc(personalize(COPY.processTitle, COPY.processTitleFallback))}</h2>
-          <p class="proc-line" id="procLine">${esc(personalize(CONFIG.processSteps[0]))}</p>
+          <h2>${esc(COPY.processTitle)}</h2>
+          <p class="proc-line" id="procLine">${esc(CONFIG.processSteps[0])}</p>
           <div class="proc-steps">
             ${CONFIG.processLabels
               .map(
@@ -697,7 +687,7 @@
           <div class="result-main">
             <div class="result-head">
               <span class="badge">${esc(COPY.resultBadge)}</span>
-              <h2>${esc(personalize(COPY.resultTitle, "Seu pré-orçamento está pronto"))}</h2>
+              <h2>${esc(resultTitle())}</h2>
               <p>${esc(COPY.resultSub)}</p>
             </div>
 

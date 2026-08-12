@@ -23,12 +23,11 @@ window.FUNNEL_CONFIG = {
       "Só falta confirmar e fechar",
     ],
     leadCta: "Ver meu pré-orçamento",
-    processTitle: "Montando seu pré-orçamento, {nome}",
-    processTitleFallback: "Montando seu pré-orçamento",
+    processTitle: "Montando seu pré-orçamento",
     processDone: "Pré-orçamento pronto",
-    processOpen: "Tudo certo, {nome}. Abrindo seu resumo…",
+    processOpen: "Tudo certo. Abrindo seu resumo…",
     resultBadge: "Pré-orçamento",
-    resultTitle: "{nome}, seu pré-orçamento está pronto",
+    resultTitle: "Seu pré-orçamento está pronto",
     resultSub:
       "Com base no diagnóstico, montamos uma faixa estimada. No WhatsApp você finaliza o pedido com a atendente.",
     quotePoints: ["Roteiro e edição inclusos", "Pronto para Reels e anúncios", "Ajuste final no WhatsApp"],
@@ -39,7 +38,7 @@ window.FUNNEL_CONFIG = {
   },
 
   processSteps: [
-    "Lendo seu perfil, {nome}…",
+    "Lendo seu perfil e objetivo…",
     "Cruzando material e formato…",
     "Definindo volume e prazo…",
     "Calculando pré-orçamento…",

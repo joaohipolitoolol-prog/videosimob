@@ -4,7 +4,7 @@
 
   const { whatsapp: WHATSAPP, storageKey: KEY, questions, portfolio, copy: COPY } = CONFIG;
 
-  const TOTAL = questions.length + 2;
+  const TOTAL = questions.length + 1;
   const STEP_DELAY = 1200;
   const FINAL_DELAY = 1700;
 
@@ -60,6 +60,8 @@
     box: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>',
   };
 
+  const requireCidade = CONFIG.requireCidade !== false;
+
   const helpers = { asList, money };
 
   const state = {
@@ -99,7 +101,8 @@
       if (s.answers && typeof s.answers === "object") state.answers = s.answers;
       if (s.lead && typeof s.lead === "object") state.lead = { ...state.lead, ...s.lead };
       if (Number.isInteger(s.step) && s.step >= 0 && s.step < questions.length) state.step = s.step;
-      if (["start", "questions", "name", "lead", "result"].includes(s.phase)) state.phase = s.phase;
+      if (s.phase === "name") state.phase = "lead";
+      else if (["start", "questions", "lead", "result"].includes(s.phase)) state.phase = s.phase;
     } catch {
       /* */
     }
@@ -107,12 +110,7 @@
 
   function save() {
     try {
-      const phase =
-        state.phase === "processing"
-          ? state.lead.nome.trim().length >= 2
-            ? "lead"
-            : "name"
-          : state.phase;
+      const phase = state.phase === "processing" ? "lead" : state.phase;
       sessionStorage.setItem(
         KEY,
         JSON.stringify({
@@ -130,15 +128,13 @@
   function progressPct() {
     if (state.phase === "start") return 0;
     if (state.phase === "result" || state.phase === "processing") return 100;
-    if (state.phase === "lead") return Math.round(((questions.length + 2) / TOTAL) * 100);
-    if (state.phase === "name") return Math.round(((questions.length + 1) / TOTAL) * 100);
+    if (state.phase === "lead") return Math.round((questions.length / TOTAL) * 100);
     return Math.round(((state.step + 1) / TOTAL) * 100);
   }
 
   function stepText() {
     if (state.phase === "start") return "";
     if (state.phase === "questions") return `${state.step + 1}/${TOTAL}`;
-    if (state.phase === "name") return `${questions.length + 1}/${TOTAL}`;
     if (state.phase === "lead") return `${TOTAL}/${TOTAL}`;
     if (state.phase === "processing") return "…";
     return "OK";
@@ -153,10 +149,7 @@
     el.chrome?.classList.toggle("is-start", state.phase === "start");
 
     const canBack =
-      state.phase === "name" ||
-      state.phase === "lead" ||
-      state.phase === "result" ||
-      state.phase === "questions";
+      state.phase === "lead" || state.phase === "result" || state.phase === "questions";
 
     el.back.hidden = !canBack || state.phase === "start" || state.phase === "processing";
   }
@@ -253,7 +246,7 @@
       state._draftStep = null;
       loadDraftFromAnswer();
     } else {
-      state.phase = "name";
+      state.phase = "lead";
       state.draft = [];
       state._draftStep = null;
     }
@@ -266,8 +259,6 @@
     if (state.phase === "processing" || state.phase === "start") return;
     if (state.phase === "result") state.phase = "lead";
     else if (state.phase === "lead") {
-      state.phase = "name";
-    } else if (state.phase === "name") {
       state.phase = "questions";
       state.step = questions.length - 1;
       loadDraftFromAnswer();
@@ -425,7 +416,11 @@
 
   function validateLead() {
     let ok = true;
-    if (state.lead.cidade.trim().length < 2) {
+    if (state.lead.nome.trim().length < 2) {
+      showErr("nome");
+      ok = false;
+    }
+    if (requireCidade && state.lead.cidade.trim().length < 2) {
       showErr("cidade");
       ok = false;
     }
@@ -435,10 +430,6 @@
       ok = false;
     }
     return ok;
-  }
-
-  function validateName() {
-    return state.lead.nome.trim().length >= 2;
   }
 
   function firstName() {
@@ -464,7 +455,7 @@
     const tel = state.lead.telefone.replace(/\D/g, "");
     return (
       state.lead.nome.trim().length >= 2 &&
-      state.lead.cidade.trim().length >= 2 &&
+      (!requireCidade || state.lead.cidade.trim().length >= 2) &&
       tel.length >= 10 &&
       tel.length <= 11
     );
@@ -518,52 +509,6 @@
     document.getElementById("confirmBtn").addEventListener("click", confirmAnswer);
   }
 
-  function nameView() {
-    el.panel.innerHTML = `
-      <div class="panel name-panel">
-        <div class="name-layout">
-          <div class="q-kicker">Quase lá</div>
-          <h1 class="q-title">${esc(COPY.nameTitle || "Como posso te chamar?")}</h1>
-          <p class="q-sub">${esc(COPY.nameSub || "Só para personalizar seu diagnóstico.")}</p>
-          <form class="form name-form" id="nameForm" novalidate>
-            <div class="field field-wide">
-              <label for="nome">Seu nome</label>
-              <input id="nome" autocomplete="name" enterkeyhint="done" required maxlength="80" value="${esc(state.lead.nome)}" placeholder="Ex.: João" />
-              <div class="err" data-e="nome">Digite seu nome</div>
-            </div>
-            <button type="submit" class="cta">${esc(COPY.nameCta || COPY.leadCta)}</button>
-          </form>
-        </div>
-      </div>
-    `;
-
-    const input = document.getElementById("nome");
-    input.addEventListener("input", () => {
-      state.lead.nome = input.value;
-      save();
-      clearErr("nome");
-    });
-    input.addEventListener("focus", () => {
-      setTimeout(() => input.scrollIntoView({ block: "center", behavior: "smooth" }), 280);
-    });
-
-    document.getElementById("nameForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      state.lead.nome = input.value.trim();
-      if (!validateName()) {
-        showErr("nome");
-        input.focus();
-        return;
-      }
-      save();
-      state.phase = "processing";
-      render();
-      runProcess();
-    });
-
-    setTimeout(() => input.focus(), 120);
-  }
-
   function leadView() {
     el.panel.innerHTML = `
       <div class="panel lead-panel">
@@ -578,10 +523,19 @@
           </div>
           <form class="form lead-form" id="leadForm" novalidate>
             <div class="field">
+              <label for="nome">Nome</label>
+              <input id="nome" autocomplete="name" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.nome)}" placeholder="Como te chamamos" />
+              <div class="err" data-e="nome">Digite seu nome</div>
+            </div>
+            ${
+              requireCidade
+                ? `<div class="field">
               <label for="cidade">Cidade</label>
               <input id="cidade" autocomplete="address-level2" enterkeyhint="next" required maxlength="80" value="${esc(state.lead.cidade)}" placeholder="Ex.: Florianópolis" />
               <div class="err" data-e="cidade">Digite sua cidade</div>
-            </div>
+            </div>`
+                : ""
+            }
             <div class="field field-wide">
               <label for="instagram">Instagram ou site <span>(opcional)</span></label>
               <input id="instagram" enterkeyhint="next" maxlength="120" value="${esc(state.lead.instagram)}" placeholder="@suaempresa" />
@@ -604,7 +558,9 @@
       tel.value = maskPhone(tel.value);
     });
 
-    ["cidade", "instagram", "telefone"].forEach((id) => {
+    const leadFields = ["nome", "instagram", "telefone"];
+    if (requireCidade) leadFields.splice(1, 0, "cidade");
+    leadFields.forEach((id) => {
       const input = document.getElementById(id);
       input.addEventListener("input", () => {
         state.lead[id] = input.value;
@@ -618,7 +574,8 @@
 
     document.getElementById("leadForm").addEventListener("submit", (e) => {
       e.preventDefault();
-      state.lead.cidade = document.getElementById("cidade").value;
+      state.lead.nome = document.getElementById("nome").value;
+      if (requireCidade) state.lead.cidade = document.getElementById("cidade").value;
       state.lead.instagram = document.getElementById("instagram").value;
       state.lead.telefone = document.getElementById("telefone").value;
       if (!validateLead()) {
@@ -626,8 +583,9 @@
         return;
       }
       save();
-      state.phase = "result";
-      render({ scroll: true });
+      state.phase = "processing";
+      render();
+      runProcess();
     });
   }
 
@@ -683,7 +641,7 @@
           line.textContent = personalize(COPY.processOpen, "Tudo certo. Abrindo seu resumo…");
         }
         state.timer = setTimeout(() => {
-          state.phase = "lead";
+          state.phase = "result";
           state.timer = null;
           save();
           render({ scroll: true });
@@ -811,11 +769,7 @@
           state.step = missingIdx;
           state._draftStep = null;
           loadDraftFromAnswer();
-        } else if (!validateName()) {
-          state.phase = "name";
-        } else {
-          state.phase = "lead";
-        }
+        } else state.phase = "lead";
         save();
         render({ scroll: true });
         return;
@@ -833,8 +787,11 @@
       COPY.waIntro,
       "",
       `Meu nome: ${state.lead.nome.trim()}`,
-      `Cidade: ${state.lead.cidade.trim()}`,
     ];
+    if (requireCidade || state.lead.cidade.trim()) {
+      lines.push(`Cidade: ${state.lead.cidade.trim() || "Não informado"}`);
+    }
+    lines.push("");
 
     for (const [id, label] of Object.entries(CONFIG.waFieldLabels)) {
       lines.push(`${label}: ${ans(id)}`);
@@ -853,7 +810,6 @@
     chrome();
     if (state.phase === "start") startView();
     else if (state.phase === "questions") questionsView();
-    else if (state.phase === "name") nameView();
     else if (state.phase === "lead") leadView();
     else if (state.phase === "processing") processView();
     else resultView();

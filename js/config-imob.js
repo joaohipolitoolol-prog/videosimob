@@ -16,10 +16,7 @@ window.FUNNEL_CONFIG = {
     portfolioHead: "Veja um pouco do trabalho",
     startCta: "Começar diagnóstico",
     leadTitle: "Onde mandamos seu pré-orçamento?",
-    leadSub: "Último passo — usamos só para montar a mensagem e te atender no WhatsApp.",
-    nameTitle: "Como posso te chamar?",
-    nameSub: "Só para personalizar seu diagnóstico.",
-    nameCta: "Montar meu pré-orçamento",
+    leadSub: "Usamos só para montar a mensagem e te atender no WhatsApp.",
     leadBullets: [
       "Pré-orçamento calculado nas suas respostas",
       "WhatsApp já com tudo preenchido",

@@ -4,7 +4,6 @@
 
   const { whatsapp: WHATSAPP, storageKey: KEY, questions, portfolio, copy: COPY } = CONFIG;
 
-  const TOTAL = questions.length + 1;
   const STEP_DELAY = 1200;
   const FINAL_DELAY = 1700;
 
@@ -127,15 +126,14 @@
 
   function progressPct() {
     if (state.phase === "start") return 0;
-    if (state.phase === "result" || state.phase === "processing") return 100;
-    if (state.phase === "lead") return Math.round((questions.length / TOTAL) * 100);
-    return Math.round(((state.step + 1) / TOTAL) * 100);
+    if (state.phase === "result" || state.phase === "processing" || state.phase === "lead") return 100;
+    return Math.round(((state.step + 1) / questions.length) * 100);
   }
 
   function stepText() {
     if (state.phase === "start") return "";
-    if (state.phase === "questions") return `${state.step + 1}/${TOTAL}`;
-    if (state.phase === "lead") return `${TOTAL}/${TOTAL}`;
+    if (state.phase === "questions") return `${state.step + 1}/${questions.length}`;
+    if (state.phase === "lead") return `${questions.length + 1}/${questions.length + 1}`;
     if (state.phase === "processing") return "…";
     return "OK";
   }

@@ -89,9 +89,9 @@ video {
 /* Chrome */
 .chrome {
   display: grid;
-  grid-template-columns: 36px 1fr auto;
+  grid-template-columns: 40px 1fr 40px;
   align-items: center;
-  gap: 0.55rem;
+  column-gap: 0.65rem;
   padding: calc(0.5rem + var(--safe-t)) 0.85rem 0.5rem;
   position: sticky;
   top: 0;
@@ -124,6 +124,7 @@ video {
   place-items: center;
   border-radius: 12px;
   color: var(--ink-2);
+  justify-self: start;
 }
 
 .nav-back:active {
@@ -140,6 +141,8 @@ video {
   border-radius: 999px;
   background: var(--line);
   overflow: hidden;
+  align-self: center;
+  min-width: 0;
 }
 
 .track-fill {
@@ -152,12 +155,18 @@ video {
 }
 
 .step {
-  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 40px;
+  height: 40px;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
-  min-width: 2.5rem;
-  text-align: right;
+  line-height: 1;
+  justify-self: end;
+  white-space: nowrap;
 }
 
 /* Stage */

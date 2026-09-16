@@ -741,6 +741,7 @@
 
             <div class="quote-card">
               <div class="quote-label">${esc(quote.plan)}</div>
+              <div class="quote-kicker">Valor total estimado</div>
               <div class="quote-price">${esc(quote.range)}</div>
               <p class="quote-note">${esc(quote.disclaimer)}</p>
               ${

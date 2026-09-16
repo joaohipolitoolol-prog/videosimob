@@ -855,7 +855,15 @@ video {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   opacity: 0.8;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.quote-kicker {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0.65;
+  margin-bottom: 0.2rem;
 }
 
 .quote-price {
@@ -1665,6 +1673,10 @@ body.theme-digital {
 .theme-digital .pf-card-static {
   background: #18181b;
   border-color: var(--line);
+}
+
+.theme-digital .quote-kicker {
+  color: #a1a1aa;
 }
 
 .theme-digital .quote-price {

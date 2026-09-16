@@ -217,8 +217,8 @@ window.FUNNEL_CONFIG = {
       when: (a, h) => needsVsl(a, h),
       options: [
         { value: "Básica — cortes, trilha e textos simples", icon: "clip", badge: "incluído" },
-        { value: "Dinâmica — imagens, legendas e efeitos", icon: "spark", badge: "+10%" },
-        { value: "Avançada — animações e direção criativa", icon: "target", badge: "+20%" },
+        { value: "Dinâmica — imagens, legendas e efeitos", icon: "spark", badge: "+8%" },
+        { value: "Avançada — animações e direção criativa", icon: "target", badge: "+12%" },
       ],
     },
     {
@@ -229,9 +229,9 @@ window.FUNNEL_CONFIG = {
       when: (a, h) => needsVsl(a, h),
       options: [
         { value: "Não precisa", icon: "empty", badge: "incluído" },
-        { value: "Sim, poucas cenas (até 5)", icon: "one", badge: "+R$ 400" },
-        { value: "Sim, várias cenas na VSL", icon: "layers", badge: "+R$ 650" },
-        { value: "Ainda não sei", icon: "compass", badge: "+R$ 250" },
+        { value: "Sim, poucas cenas (até 5)", icon: "one", badge: "+R$ 300" },
+        { value: "Sim, várias cenas na VSL", icon: "layers", badge: "+R$ 450" },
+        { value: "Ainda não sei", icon: "compass", badge: "+R$ 200" },
       ],
     },
     {
@@ -368,8 +368,8 @@ window.FUNNEL_CONFIG = {
       const scriptReady = copy === "Já tenho roteiro pronto";
 
       if (materialReady && scriptReady) {
-        min = Math.round(tier.editMin * 1.15);
-        max = Math.round(tier.editMax * 1.2);
+        min = tier.editMin;
+        max = tier.editMax;
         plan = `VSL · edição premium · ${tier.label}`;
       } else {
         min = tier.min;
@@ -404,27 +404,27 @@ window.FUNNEL_CONFIG = {
     const baseMax = max;
 
     if (estilo.includes("Dinâmica")) {
-      min = Math.round(min * 1.1);
-      max = Math.round(max * 1.12);
-      breakdown.push({ label: "Edição dinâmica", value: "+10%" });
+      min = Math.round(min * 1.08);
+      max = Math.round(max * 1.08);
+      breakdown.push({ label: "Edição dinâmica", value: "+8%" });
     } else if (estilo.includes("Avançada")) {
-      min = Math.round(min * 1.2);
-      max = Math.round(max * 1.22);
-      breakdown.push({ label: "Edição avançada", value: "+20%" });
+      min = Math.round(min * 1.12);
+      max = Math.round(max * 1.12);
+      breakdown.push({ label: "Edição avançada", value: "+12%" });
     }
 
     if (cenasIa.includes("poucas")) {
-      min += 400;
-      max += 500;
-      breakdown.push({ label: "Cenas com IA (até 5)", value: "+R$ 400 – 500" });
-    } else if (cenasIa.includes("várias")) {
-      min += 650;
-      max += 850;
-      breakdown.push({ label: "Várias cenas com IA", value: "+R$ 650 – 850" });
-    } else if (cenasIa.includes("Ainda não sei")) {
-      min += 250;
+      min += 300;
       max += 400;
-      breakdown.push({ label: "Reserva cenas IA", value: "+R$ 250 – 400" });
+      breakdown.push({ label: "Cenas com IA (até 5)", value: "+R$ 300 – 400" });
+    } else if (cenasIa.includes("várias")) {
+      min += 450;
+      max += 600;
+      breakdown.push({ label: "Várias cenas com IA", value: "+R$ 450 – 600" });
+    } else if (cenasIa.includes("Ainda não sei")) {
+      min += 200;
+      max += 300;
+      breakdown.push({ label: "Reserva cenas IA", value: "+R$ 200 – 300" });
     }
 
     if (copy && vslRelated) {

@@ -1,6 +1,6 @@
 window.FUNNEL_CONFIG = {
   whatsapp: "5548984716938",
-  storageKey: "pd-quiz-v1",
+  storageKey: "pd-quiz-v2",
   brand: "PERSUA Digital",
   requireCidade: false,
 
@@ -46,17 +46,18 @@ window.FUNNEL_CONFIG = {
 
   processSteps: [
     "Analisando seu nicho e oferta…",
-    "Cruzando entrega, copy e material…",
+    "Cruzando entrega, duração e copy…",
     "Definindo volume e prazo…",
     "Calculando pré-orçamento…",
   ],
 
-  processLabels: ["Perfil e produto", "Entrega e copy", "Volume e prazo", "Pré-orçamento"],
+  processLabels: ["Perfil e produto", "Entrega e duração", "Volume e prazo", "Pré-orçamento"],
 
   resultFields: [
     { id: "perfil", label: "Perfil" },
     { id: "produto", label: "Produto/nicho" },
     { id: "entrega", label: "Entrega" },
+    { id: "duracao", label: "Duração" },
     { id: "copy", label: "Copy/roteiro" },
     { id: "material", label: "Material" },
     { id: "quantidade", label: "Volume" },
@@ -68,6 +69,7 @@ window.FUNNEL_CONFIG = {
     perfil: "Meu perfil",
     produto: "Produto/nicho",
     entrega: "O que preciso",
+    duracao: "Duração estimada",
     copy: "Copy/roteiro",
     material: "Material disponível",
     quantidade: "Volume",
@@ -115,6 +117,20 @@ window.FUNNEL_CONFIG = {
         { value: "UGC / depoimentos", icon: "users" },
         { value: "Pacote VSL + criativos", icon: "pack" },
         { value: "Não sei, quero recomendação", icon: "compass", exclusive: true },
+      ],
+    },
+    {
+      id: "duracao",
+      title: "Qual a duração estimada do vídeo?",
+      multi: false,
+      hint: "Impacta direto no valor da VSL ou edição",
+      options: [
+        { value: "Mini VSL (até 5 min)", icon: "bolt" },
+        { value: "VSL curta (5 a 10 min)", icon: "play" },
+        { value: "VSL média (10 a 20 min)", icon: "clock" },
+        { value: "VSL longa (20 a 30 min)", icon: "video" },
+        { value: "VSL completa (30 a 45+ min)", icon: "film" },
+        { value: "Só criativos / anúncios", icon: "one", exclusive: true },
       ],
     },
     {
@@ -180,6 +196,7 @@ window.FUNNEL_CONFIG = {
 
   buildQuote(answers, { asList, money }) {
     const entrega = asList(answers.entrega);
+    const duracao = asList(answers.duracao)[0] || "";
     const copy = asList(answers.copy)[0] || "";
     const qty = asList(answers.quantidade)[0] || "";
     const material = asList(answers.material);
@@ -192,49 +209,74 @@ window.FUNNEL_CONFIG = {
       "Preciso de roteiro + revisão estratégica": 680,
     };
 
+    const durationTiers = {
+      "Mini VSL (até 5 min)": { vsl: 650, edit: 320, packExtra: 420, spread: 120, label: "Mini VSL" },
+      "VSL curta (5 a 10 min)": { vsl: 850, edit: 400, packExtra: 520, spread: 150, label: "VSL curta" },
+      "VSL média (10 a 20 min)": { vsl: 1050, edit: 480, packExtra: 620, spread: 200, label: "VSL média" },
+      "VSL longa (20 a 30 min)": { vsl: 1600, edit: 750, packExtra: 880, spread: 320, label: "VSL longa" },
+      "VSL completa (30 a 45+ min)": { vsl: 2500, edit: 1150, packExtra: 1200, spread: 480, label: "VSL completa" },
+    };
+
     const hasPack = entrega.includes("Pacote VSL + criativos");
     const hasVSL = entrega.includes("VSL completa");
     const hasCreatives = entrega.includes("Criativos para anúncios");
     const hasEdit = entrega.includes("Edição de VSL existente");
     const hasUGC = entrega.includes("UGC / depoimentos");
     const unsure = entrega.includes("Não sei, quero recomendação");
+    const creativesOnly = duracao === "Só criativos / anúncios";
+
+    const vslRelated = (hasVSL || hasPack || hasEdit || unsure) && !creativesOnly;
+    const tier =
+      durationTiers[duracao] ||
+      (vslRelated ? durationTiers["VSL média (10 a 20 min)"] : null);
 
     let unit = 350;
     let plan = "Produção de vídeo";
     let kind = "avulso";
     let spread = 180;
+    let floor = 300;
 
-    if (hasPack) {
-      unit = 1400;
-      plan = "Pacote VSL + criativos";
-      spread = 350;
-    } else if (hasVSL) {
-      unit = 900;
-      plan = "VSL completa";
-      spread = 250;
-    } else if (hasEdit) {
-      unit = 450;
-      plan = "Edição de VSL";
-      spread = 150;
+    if (hasPack && tier) {
+      unit = tier.vsl + tier.packExtra;
+      plan = `Pacote ${tier.label} + criativos`;
+      spread = tier.spread + 180;
+      floor = Math.round(tier.vsl * 0.75);
+    } else if (hasVSL && tier) {
+      unit = tier.vsl;
+      plan = `VSL completa · ${tier.label}`;
+      spread = tier.spread;
+      floor = Math.round(tier.vsl * 0.72);
+    } else if (hasEdit && tier) {
+      unit = tier.edit;
+      plan = `Edição de VSL · ${tier.label}`;
+      spread = Math.round(tier.spread * 0.55);
+      floor = Math.round(tier.edit * 0.72);
     } else if (hasCreatives && hasUGC) {
       unit = 240;
       plan = "Criativos + UGC";
       spread = 80;
+      floor = 170;
     } else if (hasCreatives) {
       unit = 200;
       plan = "Criativos para anúncios";
       spread = 70;
+      floor = 170;
     } else if (hasUGC) {
       unit = 280;
       plan = "UGC / depoimentos";
       spread = 90;
+      floor = 170;
+    } else if (unsure && tier) {
+      unit = tier.vsl;
+      plan = `Projeto sob consulta · ${tier.label}`;
+      spread = tier.spread;
+      floor = Math.round(tier.vsl * 0.72);
     } else if (unsure) {
       unit = 650;
       plan = "Projeto sob consulta";
       spread = 200;
     }
 
-    const vslRelated = hasVSL || hasPack || hasEdit || unsure;
     if (copy && vslRelated) unit += copyAddons[copy] || 0;
 
     const deliveryCount = entrega.filter((e) => e !== "Não sei, quero recomendação").length;
@@ -278,7 +320,6 @@ window.FUNNEL_CONFIG = {
     min = round10(min);
     max = round10(max);
 
-    const floor = hasVSL || hasPack ? 750 : hasCreatives || hasUGC ? 170 : 300;
     if (kind === "avulso") min = Math.max(floor, min);
     if (max < min + 30) max = min + 30;
 
@@ -300,8 +341,8 @@ window.FUNNEL_CONFIG = {
   resultChips(answers, quote, { asList }) {
     return [
       quote.plan,
-      ...asList(answers.entrega).slice(0, 2),
-      ...asList(answers.quantidade).slice(0, 1),
+      ...asList(answers.duracao).slice(0, 1),
+      ...asList(answers.entrega).slice(0, 1),
     ].filter(Boolean);
   },
 };

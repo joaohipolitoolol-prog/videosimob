@@ -46,6 +46,7 @@
     week: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18M8 15h4"/>',
     month: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/>',
     wait: '<circle cx="12" cy="12" r="9"/><path d="M12 7v6l3.5 2"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     wa: '<path d="M20.5 11.5a8.5 8.5 0 0 1-12.7 7.4L4 20l1.2-3.6A8.5 8.5 0 1 1 20.5 11.5Z"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/>',
     cart: '<circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/><path d="M2 2h2l2.5 12h11l2-8H6"/>',

@@ -485,13 +485,80 @@ video {
   height: 16px;
 }
 
-.opt-txt {
+.opt-body {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.opt-txt {
   font-size: 0.92rem;
   font-weight: 500;
   letter-spacing: -0.015em;
   line-height: 1.3;
   color: var(--ink-2);
+}
+
+.opt-note {
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: var(--ink-3);
+}
+
+.opt-badge {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.q-banner {
+  margin: 0 0 0.65rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: calc(var(--r) - 2px);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ink-2);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.quote-breakdown {
+  list-style: none;
+  margin: 0 0 0.85rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: calc(var(--r) - 2px);
+  background: color-mix(in srgb, var(--surface) 88%, var(--accent-soft));
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.quote-breakdown li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--ink-3);
+}
+
+.quote-breakdown strong {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  white-space: nowrap;
 }
 
 .opt-dot {
@@ -1564,6 +1631,23 @@ body.theme-digital {
 .theme-digital .opt-ico {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+.theme-digital .opt-badge {
+  background: rgba(249, 115, 22, 0.14);
+  border-color: rgba(249, 115, 22, 0.28);
+  color: #fb923c;
+}
+
+.theme-digital .q-banner {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: rgba(249, 115, 22, 0.22);
+  color: #d4d4d8;
+}
+
+.theme-digital .quote-breakdown {
+  background: #18181b;
+  border-color: var(--line);
 }
 
 .theme-digital .field input {

@@ -92,6 +92,34 @@
   const svg = (name) =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${I[name] || I.dots}</svg>`;
 
+  function activeQuestions() {
+    if (typeof CONFIG.getActiveQuestions === "function") {
+      return CONFIG.getActiveQuestions(state.answers, helpers);
+    }
+    return questions.filter((q) => !q.when || q.when(state.answers, helpers));
+  }
+
+  function allQuestionIds() {
+    return questions.map((q) => q.id);
+  }
+
+  function pruneHiddenAnswers() {
+    const visible = new Set(activeQuestions().map((q) => q.id));
+    allQuestionIds().forEach((id) => {
+      if (!visible.has(id)) delete state.answers[id];
+    });
+  }
+
+  function clampStep() {
+    const total = activeQuestions().length;
+    if (total === 0) {
+      state.step = 0;
+      return;
+    }
+    if (!Number.isInteger(state.step) || state.step < 0) state.step = 0;
+    if (state.step >= total) state.step = total - 1;
+  }
+
   function load() {
     try {
       const raw = sessionStorage.getItem(KEY);
@@ -100,9 +128,11 @@
       if (!s || typeof s !== "object") return;
       if (s.answers && typeof s.answers === "object") state.answers = s.answers;
       if (s.lead && typeof s.lead === "object") state.lead = { ...state.lead, ...s.lead };
-      if (Number.isInteger(s.step) && s.step >= 0 && s.step < questions.length) state.step = s.step;
+      if (Number.isInteger(s.step) && s.step >= 0) state.step = s.step;
       if (s.phase === "name") state.phase = "lead";
       else if (["start", "questions", "lead", "result"].includes(s.phase)) state.phase = s.phase;
+      pruneHiddenAnswers();
+      clampStep();
     } catch {
       /* */
     }
@@ -125,16 +155,23 @@
     }
   }
 
+  function questionTotal() {
+    return activeQuestions().length;
+  }
+
   function progressPct() {
     if (state.phase === "start") return 0;
     if (state.phase === "result" || state.phase === "processing" || state.phase === "lead") return 100;
-    return Math.round(((state.step + 1) / questions.length) * 100);
+    const total = questionTotal();
+    if (!total) return 0;
+    return Math.round(((state.step + 1) / total) * 100);
   }
 
   function stepText() {
+    const total = questionTotal();
     if (state.phase === "start") return "";
-    if (state.phase === "questions") return `${state.step + 1}/${questions.length}`;
-    if (state.phase === "lead") return `${questions.length + 1}/${questions.length + 1}`;
+    if (state.phase === "questions") return `${state.step + 1}/${total}`;
+    if (state.phase === "lead") return `${total + 1}/${total + 1}`;
     if (state.phase === "processing") return "…";
     return "OK";
   }
@@ -176,7 +213,7 @@
   }
 
   function currentQuestion() {
-    return questions[state.step];
+    return activeQuestions()[state.step];
   }
 
   function loadDraftFromAnswer() {
@@ -238,9 +275,11 @@
     if (!q || state.draft.length === 0) return;
 
     state.answers[q.id] = q.multi ? [...state.draft] : state.draft[0];
+    pruneHiddenAnswers();
     save();
 
-    if (state.step < questions.length - 1) {
+    const total = questionTotal();
+    if (state.step < total - 1) {
       state.step += 1;
       state._draftStep = null;
       loadDraftFromAnswer();
@@ -259,7 +298,8 @@
     if (state.phase === "result") state.phase = "lead";
     else if (state.phase === "lead") {
       state.phase = "questions";
-      state.step = questions.length - 1;
+      clampStep();
+      state.step = Math.max(0, questionTotal() - 1);
       loadDraftFromAnswer();
     } else if (state.phase === "questions" && state.step > 0) {
       state.step -= 1;
@@ -463,11 +503,16 @@
       state._draftStep = state.step;
     }
 
+    const kicker =
+      (typeof CONFIG.getQuizKicker === "function" && CONFIG.getQuizKicker(state.answers, q, helpers)) ||
+      `Pergunta ${state.step + 1} de ${questionTotal()}`;
+
     el.panel.innerHTML = `
       <div class="panel q-panel">
-        <div class="q-kicker">Pergunta ${state.step + 1} de ${questions.length}</div>
+        <div class="q-kicker">${esc(kicker)}</div>
+        ${q.banner ? `<p class="q-banner">${esc(q.banner)}</p>` : ""}
         <h1 class="q-title">${esc(q.title)}</h1>
-        ${q.multi ? `<p class="q-hint">${esc(q.hint || "Pode marcar mais de uma opção")}</p>` : ""}
+        ${q.hint ? `<p class="q-hint">${esc(q.hint)}</p>` : ""}
         <div class="options" role="${q.multi ? "group" : "listbox"}" aria-label="${esc(q.title)}">
           ${q.options
             .map((o) => {
@@ -475,7 +520,11 @@
               return `
             <button type="button" class="opt ${on ? "is-on" : ""}" data-v="${esc(o.value)}" aria-pressed="${on}">
               <span class="opt-ico" aria-hidden="true">${svg(o.icon)}</span>
-              <span class="opt-txt">${esc(o.value)}</span>
+              <span class="opt-body">
+                <span class="opt-txt">${esc(o.value)}</span>
+                ${o.note ? `<span class="opt-note">${esc(o.note)}</span>` : ""}
+              </span>
+              ${o.badge ? `<span class="opt-badge">${esc(o.badge)}</span>` : ""}
               <span class="opt-dot" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
               </span>
@@ -694,6 +743,13 @@
               <div class="quote-label">${esc(quote.plan)}</div>
               <div class="quote-price">${esc(quote.range)}</div>
               <p class="quote-note">${esc(quote.disclaimer)}</p>
+              ${
+                quote.breakdown?.length
+                  ? `<ul class="quote-breakdown">
+                ${quote.breakdown.map((row) => `<li><span>${esc(row.label)}</span><strong>${esc(row.value)}</strong></li>`).join("")}
+              </ul>`
+                  : ""
+              }
               <ul class="quote-points">
                 ${COPY.quotePoints.map((p) => `<li>${esc(p)}</li>`).join("")}
               </ul>
@@ -750,7 +806,7 @@
         e.preventDefault();
         return;
       }
-      const missingIdx = questions.findIndex((q) => !isAnswered(q.id));
+      const missingIdx = activeQuestions().findIndex((q) => !isAnswered(q.id));
       if (missingIdx >= 0 || !validateSilent()) {
         e.preventDefault();
         if (missingIdx >= 0) {
@@ -808,9 +864,8 @@
 
   function init() {
     load();
-    if (!Number.isInteger(state.step) || state.step < 0 || state.step >= questions.length) {
-      state.step = 0;
-    }
+    pruneHiddenAnswers();
+    clampStep();
     if (state.phase === "questions") loadDraftFromAnswer();
     render();
     el.back.addEventListener("click", goBack);

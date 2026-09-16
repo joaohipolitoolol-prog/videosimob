@@ -201,11 +201,11 @@ window.FUNNEL_CONFIG = {
       hint: "Tempo aproximado do vídeo entregue — impacta muito o valor",
       when: (a, h) => needsVsl(a, h),
       options: [
-        { value: "Até 5 minutos", icon: "bolt", badge: "R$ 550+" },
-        { value: "De 6 a 15 minutos", icon: "play", badge: "R$ 800+" },
-        { value: "De 16 a 30 minutos", icon: "clock", badge: "R$ 1.300+" },
-        { value: "De 31 a 45 minutos", icon: "video", badge: "R$ 1.900+" },
-        { value: "De 46 a 60 minutos", icon: "film", badge: "R$ 2.800+" },
+        { value: "Até 5 minutos", icon: "bolt", badge: "R$ 610+" },
+        { value: "De 6 a 15 minutos", icon: "play", badge: "R$ 880+" },
+        { value: "De 16 a 30 minutos", icon: "clock", badge: "R$ 1.430+" },
+        { value: "De 31 a 45 minutos", icon: "video", badge: "R$ 2.090+" },
+        { value: "De 46 a 60 minutos", icon: "film", badge: "R$ 3.080+" },
         { value: "Ainda não sei", icon: "compass", badge: "estimativa média" },
       ],
     },
@@ -229,9 +229,9 @@ window.FUNNEL_CONFIG = {
       when: (a, h) => needsVsl(a, h),
       options: [
         { value: "Não precisa", icon: "empty", badge: "incluído" },
-        { value: "Sim, poucas cenas (até 5)", icon: "one", badge: "+R$ 300" },
-        { value: "Sim, várias cenas na VSL", icon: "layers", badge: "+R$ 450" },
-        { value: "Ainda não sei", icon: "compass", badge: "+R$ 200" },
+        { value: "Sim, poucas cenas (até 5)", icon: "one", badge: "+R$ 330" },
+        { value: "Sim, várias cenas na VSL", icon: "layers", badge: "+R$ 500" },
+        { value: "Ainda não sei", icon: "compass", badge: "+R$ 220" },
       ],
     },
     {
@@ -241,9 +241,9 @@ window.FUNNEL_CONFIG = {
       when: (a, h) => needsVsl(a, h),
       options: [
         { value: "Já tenho roteiro pronto", icon: "clip", badge: "incluído" },
-        { value: "Tenho copy escrita (preciso adaptar)", icon: "edit", badge: "+R$ 150" },
-        { value: "Preciso de roteiro completo", icon: "pen", badge: "+R$ 450" },
-        { value: "Preciso de roteiro + revisão estratégica", icon: "target", badge: "+R$ 650" },
+        { value: "Tenho copy escrita (preciso adaptar)", icon: "edit", badge: "+R$ 170" },
+        { value: "Preciso de roteiro completo", icon: "pen", badge: "+R$ 500" },
+        { value: "Preciso de roteiro + revisão estratégica", icon: "target", badge: "+R$ 720" },
       ],
     },
     {
@@ -257,7 +257,7 @@ window.FUNNEL_CONFIG = {
         { value: "Gravações em vários arquivos / partes", icon: "layers", badge: "+10%" },
         { value: "B-roll, imagens e referências", icon: "image" },
         { value: "Apenas copy ou texto", icon: "pen" },
-        { value: "Ainda não tenho material", icon: "empty", badge: "+R$ 100", exclusive: true },
+        { value: "Ainda não tenho material", icon: "empty", badge: "+R$ 110", exclusive: true },
       ],
     },
     {
@@ -322,6 +322,8 @@ window.FUNNEL_CONFIG = {
     const prazo = asList(answers.prazo)[0] || "";
     const revisoes = asList(answers.revisoes)[0] || "";
 
+    const lift = (n) => Math.round(n * 1.1);
+
     const durationTiers = {
       "Até 5 minutos": { min: 550, max: 750, editMin: 350, editMax: 500, label: "até 5 min" },
       "De 6 a 15 minutos": { min: 800, max: 1100, editMin: 500, editMax: 700, label: "6–15 min" },
@@ -331,11 +333,18 @@ window.FUNNEL_CONFIG = {
       "Ainda não sei": { min: 1300, max: 1800, editMin: 800, editMax: 1100, label: "16–30 min (est.)" },
     };
 
+    Object.values(durationTiers).forEach((tier) => {
+      tier.min = lift(tier.min);
+      tier.max = lift(tier.max);
+      tier.editMin = lift(tier.editMin);
+      tier.editMax = lift(tier.editMax);
+    });
+
     const copyAddons = {
       "Já tenho roteiro pronto": 0,
-      "Tenho copy escrita (preciso adaptar)": 150,
-      "Preciso de roteiro completo": 450,
-      "Preciso de roteiro + revisão estratégica": 650,
+      "Tenho copy escrita (preciso adaptar)": lift(150),
+      "Preciso de roteiro completo": lift(450),
+      "Preciso de roteiro + revisão estratégica": lift(650),
     };
 
     const hasPack = entrega.includes("Pacote VSL + criativos");
@@ -350,15 +359,15 @@ window.FUNNEL_CONFIG = {
       durationTiers[duracao] ||
       (vslRelated ? durationTiers["De 16 a 30 minutos"] : null);
 
-    let min = 350;
-    let max = 520;
+    let min = lift(350);
+    let max = lift(520);
     let plan = "Produção de vídeo";
     let kind = "avulso";
     const breakdown = [];
 
     if (hasPack && tier) {
-      min = tier.min + 500;
-      max = tier.max + 750;
+      min = tier.min + lift(500);
+      max = tier.max + lift(750);
       plan = `Pacote VSL ${tier.label} + criativos`;
       breakdown.push({ label: "Base pacote VSL + criativos", value: money(min) + " – " + money(max) });
     } else if (hasVSL && tier) {
@@ -383,16 +392,16 @@ window.FUNNEL_CONFIG = {
       plan = `Edição de VSL · ${tier.label}`;
       breakdown.push({ label: `Base ${plan}`, value: money(min) + " – " + money(max) });
     } else if (hasCreatives && hasUGC) {
-      min = 220;
-      max = 320;
+      min = lift(220);
+      max = lift(320);
       plan = "Criativos + UGC";
     } else if (hasCreatives) {
-      min = 180;
-      max = 280;
+      min = lift(180);
+      max = lift(280);
       plan = "Criativos para anúncios";
     } else if (hasUGC) {
-      min = 250;
-      max = 380;
+      min = lift(250);
+      max = lift(380);
       plan = "UGC / depoimentos";
     } else if (unsure && tier) {
       min = tier.min;
@@ -414,17 +423,17 @@ window.FUNNEL_CONFIG = {
     }
 
     if (cenasIa.includes("poucas")) {
-      min += 300;
-      max += 400;
-      breakdown.push({ label: "Cenas com IA (até 5)", value: "+R$ 300 – 400" });
+      min += lift(300);
+      max += lift(400);
+      breakdown.push({ label: "Cenas com IA (até 5)", value: "+R$ 330 – 440" });
     } else if (cenasIa.includes("várias")) {
-      min += 450;
-      max += 600;
-      breakdown.push({ label: "Várias cenas com IA", value: "+R$ 450 – 600" });
+      min += lift(450);
+      max += lift(600);
+      breakdown.push({ label: "Várias cenas com IA", value: "+R$ 495 – 660" });
     } else if (cenasIa.includes("Ainda não sei")) {
-      min += 200;
-      max += 300;
-      breakdown.push({ label: "Reserva cenas IA", value: "+R$ 200 – 300" });
+      min += lift(200);
+      max += lift(300);
+      breakdown.push({ label: "Reserva cenas IA", value: "+R$ 220 – 330" });
     }
 
     if (copy && vslRelated) {
@@ -442,15 +451,15 @@ window.FUNNEL_CONFIG = {
       breakdown.push({ label: "Material em partes", value: "+10%" });
     }
     if (material.includes("Ainda não tenho material")) {
-      min += 100;
-      max += 150;
-      breakdown.push({ label: "Material pendente", value: "+R$ 100 – 150" });
+      min += lift(100);
+      max += lift(150);
+      breakdown.push({ label: "Material pendente", value: "+R$ 110 – 165" });
     }
 
     const deliveryCount = entrega.filter((e) => e !== "Não sei, quero recomendação").length;
     if (deliveryCount > 1 && !hasPack) {
-      min += 100 * (deliveryCount - 1);
-      max += 140 * (deliveryCount - 1);
+      min += lift(100) * (deliveryCount - 1);
+      max += lift(140) * (deliveryCount - 1);
     }
 
     if (revisoes === "3 rodadas") {
